@@ -1,0 +1,6 @@
+google-genai
+selenium
+undetected-chromedriver
+beautifulsoup4
+python-dotenv
+ratelimit
