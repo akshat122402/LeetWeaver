@@ -7,6 +7,8 @@ import undetected_chromedriver as uc  # For using an undetected version of Chrom
 from google import genai
 from typing import Optional
 from ratelimit import limits, sleep_and_retry
+import json
+from datetime import datetime, timedelta
 
 # Import Selenium WebDriver and related modules for web automation
 from selenium import webdriver
@@ -48,7 +50,7 @@ LEETCODE_PROBLEM_URL_PREFIX = "https://leetcode.com/problems/"  # Prefix for ind
 LEETCODE_LOGIN_URL = "https://leetcode.com/accounts/login/"  # URL for LeetCode login page
 problem_title = ''  # Placeholder for storing the current problem title
 
-
+MAX_PROBLEMS_TO_SOLVE = int(os.getenv("MAX_PROBLEMS", "2"))  # Default to 10 if not specified in .env
 
 class WebAutomation:
     def __init__(self):
@@ -146,14 +148,14 @@ class WebAutomation:
                     raise e
 
         # Wait for the "Continue" button on GitHub authorization page and click it
-        print("Waiting for Continue button...")
-        try:
-            continue_button = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//div[@id="base_content"]//button[text()="Continue"]')))  # Wait for the Continue button to be clickable
-            continue_button.click()  # Click the Continue button
-            print("Clicked Continue button.")
-        except TimeoutException:
-            print("Continue button not found. Please check the page manually.")
-            input("Press Enter after manually clicking Continue or if you need to proceed...")
+        # print("Waiting for Continue button...")
+        # try:
+        #     continue_button = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//div[@id="base_content"]//button[text()="Continue"]')))  # Wait for the Continue button to be clickable
+        #     continue_button.click()  # Click the Continue button
+        #     print("Clicked Continue button.")
+        # except TimeoutException:
+        #     print("Continue button not found. Please check the page manually.")
+        #     input("Press Enter after manually clicking Continue or if you need to proceed...")
 
         # Wait for GitHub login page to load
         print("Waiting for GitHub login page to load...")
@@ -392,6 +394,7 @@ class LeetCodeInteraction:
             print("Sleeping for 5 seconds after submit.")
         except Exception as e:
             print(f"Error submitting solution: {str(e)}")
+
 class GeminiAPIIntegration:
     def __init__(self, api_key):
         print("Initializing Gemini API...")
@@ -451,45 +454,176 @@ class CodeGenerationAndErrorHandling:
         print("Prompt we're sending is: ", prompt)
         return self.gemini_api.send_prompt(prompt)  # Send the prompt to Gemini and return the response
 
-def complete_individual_problem(leetcode, code_gen, problem_title):
+# --- New Module for Storing Results ---
+class ResultsManager:
+    def __init__(self, filename="leetcode_results.json"):
+        """Initializes the ResultsManager."""
+        self.filename = filename
+        self.results = self._load_results()
+        self.stats = self._calculate_stats()
+        print(f"Results will be saved to {self.filename}")
+        self._print_current_stats()
+
+    def _load_results(self):
+        """Loads existing results from the JSON file."""
+        if os.path.exists(self.filename):
+            try:
+                with open(self.filename, 'r') as f:
+                    print(f"Loading existing results from {self.filename}")
+                    return json.load(f)
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Error loading results file {self.filename}: {e}. Starting with empty results.")
+                return {"problems": [], "statistics": {"total_attempted": 0, "total_solved": 0, "accuracy": 0.0}}
+        else:
+            print("No existing results file found. Starting with empty results.")
+            return {"problems": [], "statistics": {"total_attempted": 0, "total_solved": 0, "accuracy": 0.0}}
+
+    def _calculate_stats(self):
+        """Calculate current statistics from results."""
+        total_attempted = len(self.results["problems"])
+        total_solved = sum(1 for result in self.results["problems"] if result["status"] == "solved")
+        accuracy = (total_solved / total_attempted * 100) if total_attempted > 0 else 0.0
+        
+        stats = {
+            "total_attempted": total_attempted,
+            "total_solved": total_solved,
+            "accuracy": round(accuracy, 2)
+        }
+        
+        self.results["statistics"] = stats
+        return stats
+
+    def _print_current_stats(self):
+        """Print current statistics to terminal."""
+        print("\n=== Current Statistics ===")
+        print(f"Total Problems Attempted: {self.stats['total_attempted']}")
+        print(f"Total Problems Solved: {self.stats['total_solved']}")
+        print(f"Current Accuracy: {self.stats['accuracy']}%")
+        print("=======================\n")
+
+    def save_result(self, problem_title, status, attempts, details=None):
+        """Adds a new result and saves the updated list to the JSON file."""
+        if details is None:
+            details = {}
+        
+        # Add solving duration if available
+        if "start_time" in details:
+            end_time = datetime.now()
+            start_time = details.pop("start_time")  # Remove start_time from details
+            duration = end_time - start_time
+            duration_seconds = duration.total_seconds()
+            details["solving_duration_seconds"] = round(duration_seconds, 2)
+            details["solving_duration_formatted"] = str(timedelta(seconds=int(duration_seconds)))
+
+        result_entry = {
+            "problem_title": problem_title,
+            "status": status,
+            "attempts": attempts,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "details": details
+        }
+        
+        self.results["problems"].append(result_entry)
+        self.stats = self._calculate_stats()
+        
+        try:
+            with open(self.filename, 'w') as f:
+                json.dump(self.results, f, indent=4)
+            print(f"Saved result for '{problem_title}' to {self.filename}")
+            self._print_current_stats()
+        except IOError as e:
+            print(f"Error saving results to {self.filename}: {e}")
+
+# --- End of New Module ---
+
+def complete_individual_problem(leetcode, code_gen, problem_title, results_manager):
     print(f"Starting to solve problem: {problem_title}")
+    start_time = datetime.now()  # Start timing
+    
     current_url = leetcode.web.current_url()
     if not current_url.startswith(LEETCODE_PROBLEM_URL_PREFIX):
         print("Error: Not on a LeetCode problem page")
+        results_manager.save_result(
+            problem_title, 
+            "error", 
+            0, 
+            {
+                "message": "Not on a problem page",
+                "start_time": start_time
+            }
+        )
         raise ValueError("Not on a LeetCode problem page")
 
-    leetcode.web.ensure_python_language()  # Make sure Python is selected as the programming language
-    problem_description = leetcode.get_problem_description()  # Get the problem description
-    starting_code = leetcode.get_starting_code()  # Get the initial code provided by LeetCode
+    leetcode.web.ensure_python_language()
+    problem_description = leetcode.get_problem_description()
+    starting_code = leetcode.get_starting_code()
+    final_status = "failed"
+    final_details = {"start_time": start_time}  # Include start_time in details
+    solved_attempt = -1
 
     for attempt in range(MAX_RETRIES):
-        print(f"Attempt {attempt + 1} of {MAX_RETRIES}")
+        current_attempt = attempt + 1
+        print(f"Attempt {current_attempt} of {MAX_RETRIES}")
         if attempt == 0:
-            code = code_gen.generate_code(problem_description, starting_code)  # Generate initial code solution
+            code = code_gen.generate_code(problem_description, starting_code)
         else:
-            code = code_gen.handle_error(problem_description, code, starting_code, results['result'], error_info)  # Generate fixed code based on previous error
-        print(f"Code for attempt {attempt + 1}:\n{code}")
-        leetcode.input_code(code)  # Input the generated code into LeetCode
-        leetcode.run_code()  # Run the code
-        print("Waiting for test results...")
-        time.sleep(5)  # Wait for results
-        results = leetcode.get_test_results()  # Get the test results
+            code = code_gen.handle_error(problem_description, code, starting_code, results['result'], error_info)
 
-        print(f"Test Results:\n{results}")  # Print the full test results
+        print(f"Code for attempt {current_attempt}:\n{code}")
+        if not code:
+            print("Error: Received empty code from generation/error handling. Skipping attempt.")
+            error_info = "Received empty code from API"
+            final_details.update({
+                "error": error_info,
+                "last_code_attempt": ""
+            })
+            continue
+
+        leetcode.input_code(code)
+        leetcode.run_code()
+        print("Waiting for test results...")
+        time.sleep(5)
+        results = leetcode.get_test_results()
+
+        print(f"Test Results:\n{results}")
 
         if results['result'] == "Accepted":
             print("Problem solved successfully!")
-            leetcode.submit_solution()  # Submit the solution if it's accepted
+            leetcode.submit_solution()
+            final_status = "solved"
+            solved_attempt = current_attempt
+            final_details.update({
+                "final_code": code
+            })
+            results_manager.save_result(problem_title, final_status, solved_attempt, final_details)
             return True
         elif results['result'] == "Runtime Error":
-            print(f"Runtime Error encountered. Error message: {results['error_message']}")
-            error_info = f"Runtime Error:\n{results['error_message']}\nInput: {results['cases'][0]['Input']}"
+            print(f"Runtime Error encountered. Error message: {results.get('error_message', 'N/A')}")
+            error_info = f"Runtime Error:\n{results.get('error_message', 'N/A')}\nInput: {results.get('cases', [{}])[0].get('Input', 'N/A')}"
+            final_details.update({
+                "error": results.get('error_message', 'N/A'),
+                "input": results.get('cases', [{}])[0].get('Input', 'N/A'),
+                "last_code_attempt": code
+            })
+        elif "Error" in results['result'] or "Timeout" in results['result']:
+            print(f"Error/Timeout encountered: {results['result']}")
+            error_info = results['result']
+            final_details.update({
+                "error": error_info,
+                "last_code_attempt": code
+            })
         else:
-            print(f"Error encountered. Attempting to fix...")
-            error_info = "\n".join([f"Case {i+1}:\n" + "\n".join([f"{k}: {v}" for k, v in case.items()]) for i, case in enumerate(results['cases'])])
+            print(f"Incorrect answer or other issue: {results['result']}. Attempting to fix...")
+            error_info = "\n".join([f"Case {i+1}:\n" + "\n".join([f"{k}: {v}" for k, v in case.items()]) for i, case in enumerate(results.get('cases', []))])
+            final_details.update({
+                "error": results['result'],
+                "failed_cases": results.get('cases', []),
+                "last_code_attempt": code
+            })
 
     print(f"Max retries reached. Adding problem '{problem_title}' to failed list and moving to next problem.")
-    FAILED_PROBLEMS.add(problem_title)  # Add the problem to the failed problems set if max retries are reached
+    FAILED_PROBLEMS.add(problem_title)
+    results_manager.save_result(problem_title, final_status, MAX_RETRIES, final_details)
     return False
 
 def navigate_to_new_problem(web_automation):
@@ -552,26 +686,48 @@ def navigate_to_new_problem(web_automation):
 def main():
     global CURRENT_PAGE
     print("Starting LeetCode Solver...")
-    web_automation = WebAutomation()  # Initialize the WebAutomation instance
-    leetcode = LeetCodeInteraction(web_automation)  # Initialize the LeetCodeInteraction instance
-    gemini_api = GeminiAPIIntegration(os.getenv("GEMINI_API_KEY"))  # Initialize the GeminiAPIIntegration instance with the API key
-    code_gen = CodeGenerationAndErrorHandling(gemini_api)  # Initialize the CodeGenerationAndErrorHandling instance
+    print(f"Will attempt to solve {MAX_PROBLEMS_TO_SOLVE} problems")
+    
+    web_automation = WebAutomation()
+    leetcode = LeetCodeInteraction(web_automation)
+    gemini_api = GeminiAPIIntegration(os.getenv("GEMINI_API_KEY"))
+    code_gen = CodeGenerationAndErrorHandling(gemini_api)
+    results_manager = ResultsManager()
 
     # Use the new automated login method
-    web_automation.login(os.getenv("LEETCODE_USERNAME"), os.getenv("LEETCODE_PASSWORD"))  # Log in to LeetCode using the provided credentials
+    web_automation.login(os.getenv("LEETCODE_USERNAME"), os.getenv("LEETCODE_PASSWORD"))
 
-    while True:
+    problems_attempted = 0
+    
+    while problems_attempted < MAX_PROBLEMS_TO_SOLVE:
         try:
-            problem_title = navigate_to_new_problem(web_automation)  # Navigate to a new problem
-            if complete_individual_problem(leetcode, code_gen, problem_title):  # Attempt to solve the problem
+            remaining_problems = MAX_PROBLEMS_TO_SOLVE - problems_attempted
+            print(f"\n=== Attempting problem {problems_attempted + 1} of {MAX_PROBLEMS_TO_SOLVE} ({remaining_problems} remaining) ===\n")
+            
+            problem_title = navigate_to_new_problem(web_automation)
+            if complete_individual_problem(leetcode, code_gen, problem_title, results_manager):
                 print(f"Successfully solved problem: {problem_title}. Moving to next problem...")
             else:
                 print(f"Failed to solve problem: {problem_title}. Skipping to next problem...")
+            
+            problems_attempted += 1
+            
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"A critical error occurred in the main loop: {e}")
+            try:
+                current_problem = problem_title
+            except NameError:
+                current_problem = "Unknown (error before problem selection)"
+
+            results_manager.save_result(current_problem, "critical_error", 0, {"message": str(e)})
             print("Attempting to continue with next problem...")
-            # Reset to page 1 if an error occurs
             CURRENT_PAGE = 1
+            problems_attempted += 1  # Count failed attempts toward the total
+    
+    print("\n=== LeetCode Solver Completed ===")
+    print(f"Attempted {problems_attempted} problems")
+    results_manager._print_current_stats()  # Print final statistics
+    web_automation.driver.quit()  # Clean up by closing the browser
 
 if __name__ == "__main__":
-    main()  # Run the main function if this script is executed directly
+    main()

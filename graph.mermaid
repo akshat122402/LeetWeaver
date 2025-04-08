@@ -1,26 +1,29 @@
 graph LR
-A[Input Problem / Task]-- > B(Orchestrator);
+    A[Input Problem/Task] --> B(Orchestrator);
 
-subgraph Iterative Refinement Cycle
-B-- > C { Problem Analyzer & Planner };
-C--Plan & Constraints-- > B;
-B--Plan-- > D(Coding Agent Gemini);
-D--Code Attempt-- > B;
-B--Code-- > E(Testing Agent);
-E--Test Results-- > B;
-B--Evaluate Test Results-- > F { Tests Passed ? };
-F--No-- > G(Debugging Agent Gemini);
-G--Debug Analysis / Fix-- > B;
-B--Feedback-- > D;
+    subgraph Iterative Refinement Cycle
+        B --> C{Problem Analyzer & Planner};
+        C -- Plan & Constraints --> B;
+        B -- Plan --> D(Coding Agent Gemini);
+        D -- Code Attempt --> B;
+        B -- Code --> E(Testing Agent);
+        E -- Test Results --> B;
+        B -- Evaluate Test Results --> F{Tests Passed?};
+        F -- No --> G(Debugging Agent Gemini);
+        G -- Debug Analysis/Fix --> B;
+        B -- Feedback --> D; 
 
-F--Yes-- > H { Optimize ? };
-H--Yes-- > I(Optimization Agent Gemini);
-I--Optimization Analysis / Code-- > B;
-B--Feedback / Optimized Code-- > D;
-H--No / Optimization Done-- > J { Submit / Benchmark ? };
-end
-J--Submit to LeetCode-- > K(Submission Agent Interface);
-K--LeetCode Results-- > B;
-J--Run on Benchmark-- > L(Benchmark Agent);
-L--Benchmark Report-- > B;
-B--Final Code & Report-- > M[Output Solution & Metrics];
+        F -- Yes --> H{Optimize?};
+        H -- Yes --> I(Optimization Agent Gemini);
+        I -- Optimization Analysis/Code --> B;
+        B -- Feedback/Optimized Code --> D;
+        H -- No / Optimization Done --> J{Submit/Benchmark?};
+    end
+
+    J -- Submit to LeetCode --> K(Submission Agent Interface);
+    K -- LeetCode Results --> B;
+
+    B -- Final Code & Report --> M[Output Solution & Metrics];
+
+    style B fill:#f89f1b,stroke:#333,stroke-width:2px, color: black;
+    style K fill:#f89f1b,stroke:#333,stroke-width:2px, color: black;
