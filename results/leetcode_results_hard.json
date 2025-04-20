@@ -1,0 +1,1202 @@
+{
+    "problems": [
+        {
+            "problem_title": "140. Word Break II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:11:23",
+            "details": {
+                "final_code": "class Solution(object):\n    def wordBreak(self, s, wordDict):\n        \"\"\"\n        :type s: str\n        :type wordDict: List[str]\n        :rtype: List[str]\n        \"\"\"\n        word_set = set(wordDict)\n        memo = {}\n\n        def backtrack(start):\n            if start in memo:\n                return memo[start]\n\n            if start == len(s):\n                return [\"\"]\n\n            result = []\n            for end in range(start + 1, len(s) + 1):\n                word = s[start:end]\n                if word in word_set:\n                    suffixes = backtrack(end)\n                    for suffix in suffixes:\n                        if suffix:\n                            result.append(word + \" \" + suffix)\n                        else:\n                            result.append(word)\n\n            memo[start] = result\n            return result\n\n        return backtrack(0)",
+                "solving_duration_seconds": 22.94,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "52. N-Queens II",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:11:51",
+            "details": {
+                "error": "SyntaxError: invalid syntax\n                 ^\n    nonlocal count\nLine 13  (Solution.py)",
+                "last_code_attempt": "class Solution(object):\n    def totalNQueens(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: int\n        \"\"\"\n        count = 0\n        cols = set()\n        pos_diag = set()  # (row + col)\n        neg_diag = set()  # (row - col)\n\n        def backtrack(row):\n            nonlocal count\n            if row == n:\n                count += 1\n                return\n\n            for col in range(n):\n                if col in cols or (row + col) in pos_diag or (row - col) in neg_diag:\n                    continue\n\n                cols.add(col)\n                pos_diag.add(row + col)\n                neg_diag.add(row - col)\n                backtrack(row + 1)\n\n                cols.remove(col)\n                pos_diag.remove(row + col)\n                neg_diag.remove(row - col)\n\n        backtrack(0)\n        return count",
+                "solving_duration_seconds": 13.27,
+                "solving_duration_formatted": "0:00:13"
+            }
+        },
+        {
+            "problem_title": "115. Distinct Subsequences",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:12:26",
+            "details": {
+                "final_code": "class Solution(object):\n    def numDistinct(self, s, t):\n        \"\"\"\n        :type s: str\n        :type t: str\n        :rtype: int\n        \"\"\"\n        n = len(s)\n        m = len(t)\n        \n        dp = [[0] * (n + 1) for _ in range(m + 1)]\n        \n        for j in range(n + 1):\n            dp[0][j] = 1\n            \n        for i in range(1, m + 1):\n            for j in range(1, n + 1):\n                if t[i-1] == s[j-1]:\n                    dp[i][j] = dp[i-1][j-1] + dp[i][j-1]\n                else:\n                    dp[i][j] = dp[i][j-1]\n                    \n        return dp[m][n]",
+                "solving_duration_seconds": 20.57,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "23. Merge k Sorted Lists",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:13:01",
+            "details": {
+                "final_code": "# Definition for singly-linked list.\n# class ListNode(object):\n#     def __init__(self, val=0, next=None):\n#         self.val = val\n#         self.next = next\nimport heapq\n\nclass Solution(object):\n    def mergeKLists(self, lists):\n        \"\"\"\n        :type lists: List[Optional[ListNode]]\n        :rtype: Optional[ListNode]\n        \"\"\"\n        heap = []\n        for i in range(len(lists)):\n            if lists[i]:\n                heapq.heappush(heap, (lists[i].val, i, lists[i]))\n\n        head = ListNode()\n        curr = head\n\n        while heap:\n            val, index, node = heapq.heappop(heap)\n            curr.next = node\n            curr = curr.next\n\n            if node.next:\n                heapq.heappush(heap, (node.next.val, index, node.next))\n\n        return head.next",
+                "solving_duration_seconds": 21.6,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "332. Reconstruct Itinerary",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:13:36",
+            "details": {
+                "final_code": "class Solution(object):\n    def findItinerary(self, tickets):\n        \"\"\"\n        :type tickets: List[List[str]]\n        :rtype: List[str]\n        \"\"\"\n        graph = {}\n        for src, dest in tickets:\n            if src in graph:\n                graph[src].append(dest)\n            else:\n                graph[src] = [dest]\n        \n        for src in graph:\n            graph[src].sort(reverse=True)\n        \n        result = []\n        \n        def dfs(airport):\n            while airport in graph and graph[airport]:\n                next_airport = graph[airport].pop()\n                dfs(next_airport)\n            result.append(airport)\n        \n        dfs(\"JFK\")\n        \n        return result[::-1]",
+                "solving_duration_seconds": 20.28,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "336. Palindrome Pairs",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:14:08",
+            "details": {
+                "error": "Wrong Answer",
+                "failed_cases": [
+                    {
+                        "Input": "[\"abcd\",\"dcba\",\"lls\",\"s\",\"sssll\"]",
+                        "Output": "[[1,0],[0,1],[0,1],[1,0],[3,2],[2,4]]",
+                        "Expected": "[[0,1],[1,0],[3,2],[2,4]]"
+                    },
+                    {
+                        "Input": "[\"bat\",\"tab\",\"cat\"]",
+                        "Output": "[[1,0],[0,1],[0,1],[1,0]]",
+                        "Expected": "[[0,1],[1,0]]"
+                    },
+                    {
+                        "Input": "[\"a\",\"\"]",
+                        "Output": "[[1,0]]",
+                        "Expected": "[[0,1],[1,0]]"
+                    }
+                ],
+                "last_code_attempt": "class Solution(object):\n    def palindromePairs(self, words):\n        \"\"\"\n        :type words: List[str]\n        :rtype: List[List[int]]\n        \"\"\"\n        def is_palindrome(s):\n            return s == s[::-1]\n\n        word_map = {word: i for i, word in enumerate(words)}\n        result = []\n\n        for i, word in enumerate(words):\n            n = len(word)\n            for j in range(n + 1):\n                prefix = word[:j]\n                suffix = word[j:]\n\n                if is_palindrome(prefix):\n                    reversed_suffix = suffix[::-1]\n                    if reversed_suffix in word_map and word_map[reversed_suffix] != i:\n                        result.append([word_map[reversed_suffix], i])\n\n                if j > 0 and is_palindrome(suffix):\n                    reversed_prefix = prefix[::-1]\n                    if reversed_prefix in word_map and word_map[reversed_prefix] != i:\n                        result.append([i, word_map[reversed_prefix]])\n\n        return result",
+                "solving_duration_seconds": 16.71,
+                "solving_duration_formatted": "0:00:16"
+            }
+        },
+        {
+            "problem_title": "42. Trapping Rain Water",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:14:43",
+            "details": {
+                "final_code": "class Solution(object):\n    def trap(self, height):\n        \"\"\"\n        :type height: List[int]\n        :rtype: int\n        \"\"\"\n        if not height:\n            return 0\n\n        n = len(height)\n        left_max = [0] * n\n        right_max = [0] * n\n        water = 0\n\n        left_max[0] = height[0]\n        for i in range(1, n):\n            left_max[i] = max(height[i], left_max[i - 1])\n\n        right_max[n - 1] = height[n - 1]\n        for i in range(n - 2, -1, -1):\n            right_max[i] = max(height[i], right_max[i + 1])\n\n        for i in range(n):\n            water += min(left_max[i], right_max[i]) - height[i]\n\n        return water",
+                "solving_duration_seconds": 20.46,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "149. Max Points on a Line",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:15:18",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxPoints(self, points):\n        \"\"\"\n        :type points: List[List[int]]\n        :rtype: int\n        \"\"\"\n        n = len(points)\n        if n <= 2:\n            return n\n        \n        max_points = 0\n        \n        for i in range(n):\n            slopes = {}\n            same_point = 1\n            vertical = 0\n            \n            for j in range(i + 1, n):\n                if points[i][0] == points[j][0] and points[i][1] == points[j][1]:\n                    same_point += 1\n                elif points[i][0] == points[j][0]:\n                    vertical += 1\n                else:\n                    slope = float(points[j][1] - points[i][1]) / (points[j][0] - points[i][0])\n                    if slope in slopes:\n                        slopes[slope] += 1\n                    else:\n                        slopes[slope] = 1\n            \n            max_points = max(max_points, same_point)\n            max_points = max(max_points, vertical + same_point)\n            \n            for slope in slopes:\n                max_points = max(max_points, slopes[slope] + same_point)\n        \n        return max_points",
+                "solving_duration_seconds": 20.92,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "25. Reverse Nodes in k-Group",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:15:55",
+            "details": {
+                "final_code": "# Definition for singly-linked list.\n# class ListNode(object):\n#     def __init__(self, val=0, next=None):\n#         self.val = val\n#         self.next = next\nclass Solution(object):\n    def reverseKGroup(self, head, k):\n        \"\"\"\n        :type head: Optional[ListNode]\n        :type k: int\n        :rtype: Optional[ListNode]\n        \"\"\"\n        def reverseList(head, k):\n            curr = head\n            prev = None\n            count = 0\n            while curr and count < k:\n                next_node = curr.next\n                curr.next = prev\n                prev = curr\n                curr = next_node\n                count += 1\n            return prev, head\n\n        dummy = ListNode(0)\n        dummy.next = head\n        prev_group_tail = dummy\n\n        while True:\n            # Check if there are at least k nodes remaining\n            curr = prev_group_tail.next\n            count = 0\n            while curr and count < k:\n                curr = curr.next\n                count += 1\n            if count < k:\n                break\n\n            # Reverse the next k nodes\n            group_head = prev_group_tail.next\n            reversed_head, group_tail = reverseList(group_head, k)\n\n            # Connect the reversed group to the previous group\n            prev_group_tail.next = reversed_head\n\n            # Connect the tail of the reversed group to the next group\n            group_tail.next = curr\n\n            # Update the tail of the previous group\n            prev_group_tail = group_tail\n\n        return dummy.next",
+                "solving_duration_seconds": 21.26,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "44. Wildcard Matching",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:16:31",
+            "details": {
+                "final_code": "class Solution(object):\n    def isMatch(self, s, p):\n        \"\"\"\n        :type s: str\n        :type p: str\n        :rtype: bool\n        \"\"\"\n        s_len = len(s)\n        p_len = len(p)\n\n        dp = [[False] * (p_len + 1) for _ in range(s_len + 1)]\n        dp[0][0] = True\n\n        for j in range(1, p_len + 1):\n            if p[j - 1] == '*':\n                dp[0][j] = dp[0][j - 1]\n\n        for i in range(1, s_len + 1):\n            for j in range(1, p_len + 1):\n                if p[j - 1] == '*':\n                    dp[i][j] = dp[i - 1][j] or dp[i][j - 1]\n                elif p[j - 1] == '?' or s[i - 1] == p[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1]\n                else:\n                    dp[i][j] = False\n\n        return dp[s_len][p_len]",
+                "solving_duration_seconds": 21.94,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "220. Contains Duplicate III",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:17:06",
+            "details": {
+                "final_code": "class Solution(object):\n    def containsNearbyAlmostDuplicate(self, nums, indexDiff, valueDiff):\n        \"\"\"\n        :type nums: List[int]\n        :type indexDiff: int\n        :type valueDiff: int\n        :rtype: bool\n        \"\"\"\n        if indexDiff < 1 or valueDiff < 0:\n            return False\n        \n        bucket = {}\n        for i in range(len(nums)):\n            bucket_id = nums[i] // (valueDiff + 1) if valueDiff != 0 else nums[i]\n            \n            if bucket_id in bucket:\n                return True\n            \n            if bucket_id - 1 in bucket and abs(nums[i] - bucket[bucket_id - 1]) <= valueDiff:\n                return True\n            \n            if bucket_id + 1 in bucket and abs(nums[i] - bucket[bucket_id + 1]) <= valueDiff:\n                return True\n            \n            bucket[bucket_id] = nums[i]\n            \n            if i >= indexDiff:\n                old_bucket_id = nums[i - indexDiff] // (valueDiff + 1) if valueDiff != 0 else nums[i - indexDiff]\n                del bucket[old_bucket_id]\n        \n        return False",
+                "solving_duration_seconds": 20.85,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "273. Integer to English Words",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:17:43",
+            "details": {
+                "final_code": "class Solution(object):\n    def numberToWords(self, num):\n        \"\"\"\n        :type num: int\n        :rtype: str\n        \"\"\"\n        less_than_20 = [\"\", \"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven\", \"Eight\", \"Nine\", \"Ten\", \"Eleven\",\n                          \"Twelve\", \"Thirteen\", \"Fourteen\", \"Fifteen\", \"Sixteen\", \"Seventeen\", \"Eighteen\", \"Nineteen\"]\n        tens = [\"\", \"\", \"Twenty\", \"Thirty\", \"Forty\", \"Fifty\", \"Sixty\", \"Seventy\", \"Eighty\", \"Ninety\"]\n        thousands = [\"\", \"Thousand\", \"Million\", \"Billion\"]\n\n        def helper(n):\n            if n < 20:\n                return less_than_20[n]\n            elif n < 100:\n                return tens[n // 10] + (\" \" + less_than_20[n % 10])\n            else:\n                return less_than_20[n // 100] + \" Hundred \" + helper(n % 100)\n\n        if num == 0:\n            return \"Zero\"\n\n        result = []\n        for i in range(4):\n            if num % 1000 != 0:\n                result.append(helper(num % 1000) + \" \" + thousands[i])\n            num //= 1000\n\n        return \" \".join(result[::-1]).strip()",
+                "solving_duration_seconds": 22.25,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "233. Number of Digit One",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:18:18",
+            "details": {
+                "final_code": "class Solution(object):\n    def countDigitOne(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: int\n        \"\"\"\n        count = 0\n        i = 1\n        while i <= n:\n            divider = i * 10\n            count += (n // divider) * i + min(max(n % divider - i + 1, 0), i)\n            i *= 10\n        return count",
+                "solving_duration_seconds": 20.1,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "124. Binary Tree Maximum Path Sum",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:18:48",
+            "details": {
+                "error": "SyntaxError: invalid syntax\n                   ^\n    nonlocal max_sum\nLine 16  (Solution.py)",
+                "last_code_attempt": "# Definition for a binary tree node.\n# class TreeNode(object):\n#     def __init__(self, val=0, left=None, right=None):\n#         self.val = val\n#         self.left = left\n#         self.right = right\nclass Solution(object):\n    def maxPathSum(self, root):\n        \"\"\"\n        :type root: Optional[TreeNode]\n        :rtype: int\n        \"\"\"\n        max_sum = float('-inf')\n\n        def max_gain(node):\n            nonlocal max_sum\n            if not node:\n                return 0\n\n            # max sum if we start a new path from left and right children\n            left_gain = max(max_gain(node.left), 0)\n            right_gain = max(max_gain(node.right), 0)\n\n            # the price to start a new path is the node value\n            price_newpath = node.val + left_gain + right_gain\n\n            # update max_sum if it is better to start a new path\n            max_sum = max(max_sum, price_newpath)\n\n            # for recursion :\n            # return the max gain if continue the same path\n            return node.val + max(left_gain, right_gain)\n\n        max_gain(root)\n        return max_sum",
+                "solving_duration_seconds": 13.84,
+                "solving_duration_formatted": "0:00:13"
+            }
+        },
+        {
+            "problem_title": "407. Trapping Rain Water II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:19:23",
+            "details": {
+                "final_code": "import heapq\n\nclass Solution(object):\n    def trapRainWater(self, heightMap):\n        \"\"\"\n        :type heightMap: List[List[int]]\n        :rtype: int\n        \"\"\"\n        if not heightMap or not heightMap[0]:\n            return 0\n\n        m, n = len(heightMap), len(heightMap[0])\n        visited = [[False] * n for _ in range(m)]\n        heap = []\n\n        for i in range(m):\n            for j in range(n):\n                if i == 0 or i == m - 1 or j == 0 or j == n - 1:\n                    heapq.heappush(heap, (heightMap[i][j], i, j))\n                    visited[i][j] = True\n\n        water = 0\n        while heap:\n            height, i, j = heapq.heappop(heap)\n            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:\n                x, y = i + dx, j + dy\n                if 0 <= x < m and 0 <= y < n and not visited[x][y]:\n                    water += max(0, height - heightMap[x][y])\n                    visited[x][y] = True\n                    heapq.heappush(heap, (max(height, heightMap[x][y]), x, y))\n\n        return water",
+                "solving_duration_seconds": 20.93,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "41. First Missing Positive",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:19:51",
+            "details": {
+                "error": "NameError: global name 'Solution' is not defined\n    ret = Solution().firstMissingPositive(param_1)\nLine 26 in _driver (Solution.py)\n    _driver()\nLine 40 in <module> (Solution.py)",
+                "last_code_attempt": "class Solution(object):\n    def firstMissingPositive(self, nums):\n        \"\"\"\n        :type nums: List[int]\n        :rtype: int\n        \"\"\"\n        n = len(nums)\n\n        # Check if 1 is present in the array. If not, you're done and 1 is the answer.\n        if 1 not in nums:\n            return 1\n\n        # Replace negative numbers, zeros,\n        # and numbers larger than n by 1s.\n        # After this conversion, nums will contain\n        # only positive numbers.\n        for i in range(n):\n            if nums[i] <= 0 or nums[i] > n:\n                nums[i] = 1\n\n        # Use the index as a hash key and number sign as a presence detector.\n        # For example, if nums[1] is negative, that means that the number `1`\n        # is present in the array.\n        # If nums[2] is positive, the number 2 is missing.\n        for i in range(n):\n            a = abs(nums[i])\n            # If you meet number a in the array, change the sign of the a-th element.\n            # Be careful with duplicates: do it only once.\n            if a == n:\n                nums[0] = - abs(nums[0])\n            else:\n                nums[a] = - abs(nums[a])\n\n        # Now the index of the first positive number\n        # is equal to the first missing positive.\n        for i in range(1, n):\n            if nums[i] > 0:\n                return i\n\n        if nums[0] > 0:\n            return n\n\n        return n + 1",
+                "solving_duration_seconds": 13.83,
+                "solving_duration_formatted": "0:00:13"
+            }
+        },
+        {
+            "problem_title": "174. Dungeon Game",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:20:27",
+            "details": {
+                "final_code": "class Solution(object):\n    def calculateMinimumHP(self, dungeon):\n        \"\"\"\n        :type dungeon: List[List[int]]\n        :rtype: int\n        \"\"\"\n        m = len(dungeon)\n        n = len(dungeon[0])\n\n        dp = [[0] * n for _ in range(m)]\n\n        dp[m - 1][n - 1] = max(1, 1 - dungeon[m - 1][n - 1])\n\n        for i in range(m - 2, -1, -1):\n            dp[i][n - 1] = max(1, dp[i + 1][n - 1] - dungeon[i][n - 1])\n\n        for j in range(n - 2, -1, -1):\n            dp[m - 1][j] = max(1, dp[m - 1][j + 1] - dungeon[m - 1][j])\n\n        for i in range(m - 2, -1, -1):\n            for j in range(n - 2, -1, -1):\n                dp[i][j] = max(1, min(dp[i + 1][j], dp[i][j + 1]) - dungeon[i][j])\n\n        return dp[0][0]",
+                "solving_duration_seconds": 20.88,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "135. Candy",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:21:02",
+            "details": {
+                "final_code": "class Solution(object):\n    def candy(self, ratings):\n        \"\"\"\n        :type ratings: List[int]\n        :rtype: int\n        \"\"\"\n        n = len(ratings)\n        candies = [1] * n\n\n        for i in range(1, n):\n            if ratings[i] > ratings[i - 1]:\n                candies[i] = candies[i - 1] + 1\n\n        for i in range(n - 2, -1, -1):\n            if ratings[i] > ratings[i + 1]:\n                candies[i] = max(candies[i], candies[i + 1] + 1)\n\n        return sum(candies)",
+                "solving_duration_seconds": 20.14,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "84. Largest Rectangle in Histogram",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:21:37",
+            "details": {
+                "final_code": "class Solution(object):\n    def largestRectangleArea(self, heights):\n        \"\"\"\n        :type heights: List[int]\n        :rtype: int\n        \"\"\"\n        stack = []\n        max_area = 0\n        n = len(heights)\n        for i in range(n):\n            while stack and heights[i] < heights[stack[-1]]:\n                height = heights[stack.pop()]\n                width = i if not stack else i - stack[-1] - 1\n                max_area = max(max_area, height * width)\n            stack.append(i)\n        while stack:\n            height = heights[stack.pop()]\n            width = n if not stack else n - stack[-1] - 1\n            max_area = max(max_area, height * width)\n        return max_area",
+                "solving_duration_seconds": 20.32,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "420. Strong Password Checker",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:22:14",
+            "details": {
+                "final_code": "class Solution(object):\n    def strongPasswordChecker(self, password):\n        \"\"\"\n        :type password: str\n        :rtype: int\n        \"\"\"\n        n = len(password)\n        missing_type = 3\n        has_lower = False\n        has_upper = False\n        has_digit = False\n        for char in password:\n            if char.islower():\n                has_lower = True\n            elif char.isupper():\n                has_upper = True\n            elif char.isdigit():\n                has_digit = True\n        if has_lower:\n            missing_type -= 1\n        if has_upper:\n            missing_type -= 1\n        if has_digit:\n            missing_type -= 1\n\n        repeats = []\n        i = 0\n        while i < n:\n            j = i\n            while j < n and password[i] == password[j]:\n                j += 1\n            length = j - i\n            if length >= 3:\n                repeats.append(length)\n            i = j\n\n        change = 0\n        if n < 6:\n            change += max(missing_type, 6 - n)\n        elif n > 20:\n            delete = n - 20\n            change += delete\n            repeats.sort()\n            i = 0\n            while delete > 0 and i < len(repeats):\n                if repeats[i] < 3:\n                    i += 1\n                    continue\n                need = min(delete, repeats[i] % 3 + 1)\n                repeats[i] -= need\n                delete -= need\n                change -= need\n                i += 1\n            for length in repeats:\n                change += length // 3\n            change = max(change, missing_type)\n        else:\n            for length in repeats:\n                change += length // 3\n            change = max(change, missing_type)\n\n        return change",
+                "solving_duration_seconds": 22.61,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "51. N-Queens",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:22:48",
+            "details": {
+                "final_code": "class Solution(object):\n    def solveNQueens(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: List[List[str]]\n        \"\"\"\n        def is_safe(board, row, col):\n            for i in range(row):\n                if board[i] == col or abs(board[i] - col) == row - i:\n                    return False\n            return True\n\n        def solve_n_queens_util(row, board, solutions):\n            if row == n:\n                solution = []\n                for i in range(n):\n                    row_str = \"\"\n                    for j in range(n):\n                        if board[i] == j:\n                            row_str += \"Q\"\n                        else:\n                            row_str += \".\"\n                    solution.append(row_str)\n                solutions.append(solution)\n                return\n\n            for col in range(n):\n                if is_safe(board, row, col):\n                    board[row] = col\n                    solve_n_queens_util(row + 1, board, solutions)\n\n        solutions = []\n        board = [0] * n\n        solve_n_queens_util(0, board, solutions)\n        return solutions",
+                "solving_duration_seconds": 20.66,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "432. All O`one Data Structure",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:23:21",
+            "details": {
+                "error": "Wrong Answer",
+                "failed_cases": [
+                    {
+                        "Input": "[\"AllOne\",\"inc\",\"inc\",\"getMaxKey\",\"getMinKey\",\"inc\",\"getMaxKey\",\"getMinKey\"]",
+                        "Output": "[null,null,null,\"hello\",\"\",null,\"hello\",\"\"]",
+                        "Expected": "[null,null,null,\"hello\",\"hello\",null,\"hello\",\"leet\"]"
+                    }
+                ],
+                "last_code_attempt": "class AllOne(object):\n\n    def __init__(self):\n        self.key_counts = {}\n        self.count_keys = {}\n        self.min_count = 0\n        self.max_count = 0\n\n    def inc(self, key):\n        if key in self.key_counts:\n            old_count = self.key_counts[key]\n            self.key_counts[key] += 1\n            new_count = self.key_counts[key]\n\n            self.count_keys[old_count].remove(key)\n            if not self.count_keys[old_count]:\n                del self.count_keys[old_count]\n                if self.min_count == old_count:\n                    if not self.count_keys:\n                        self.min_count = new_count\n                    else:\n                        self.min_count = min(self.count_keys.keys())\n\n            if new_count not in self.count_keys:\n                self.count_keys[new_count] = set()\n            self.count_keys[new_count].add(key)\n\n            self.max_count = max(self.max_count, new_count)\n\n        else:\n            self.key_counts[key] = 1\n            if 1 not in self.count_keys:\n                self.count_keys[1] = set()\n            self.count_keys[1].add(key)\n\n            if not self.key_counts or self.min_count > 1:\n                self.min_count = 1\n            self.max_count = max(self.max_count, 1)\n\n    def dec(self, key):\n        old_count = self.key_counts[key]\n        self.key_counts[key] -= 1\n        new_count = self.key_counts[key]\n\n        self.count_keys[old_count].remove(key)\n        if not self.count_keys[old_count]:\n            del self.count_keys[old_count]\n            if self.min_count == old_count:\n                if not self.count_keys:\n                    self.min_count = 0\n                else:\n                    self.min_count = min(self.count_keys.keys())\n            if self.max_count == old_count and not self.count_keys.get(old_count, None):\n                self.max_count = max(self.count_keys.keys()) if self.count_keys else 0\n\n        if new_count > 0:\n            if new_count not in self.count_keys:\n                self.count_keys[new_count] = set()\n            self.count_keys[new_count].add(key)\n            self.min_count = min(self.min_count, new_count)\n        else:\n            del self.key_counts[key]\n            if not self.key_counts:\n                self.min_count = 0\n                self.max_count = 0\n\n    def getMaxKey(self):\n        if not self.key_counts:\n            return \"\"\n        if not self.count_keys:\n            return \"\"\n        max_count = self.max_count\n        if max_count not in self.count_keys:\n            return \"\"\n        keys = self.count_keys[max_count]\n        if not keys:\n            return \"\"\n        return next(iter(keys))\n\n    def getMinKey(self):\n        if not self.key_counts:\n            return \"\"\n        if not self.count_keys:\n            return \"\"\n        min_count = self.min_count\n        if min_count not in self.count_keys:\n            return \"\"\n        keys = self.count_keys[min_count]\n        if not keys:\n            return \"\"\n        return next(iter(keys))",
+                "solving_duration_seconds": 17.44,
+                "solving_duration_formatted": "0:00:17"
+            }
+        },
+        {
+            "problem_title": "363. Max Sum of Rectangle No Larger Than K",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:23:56",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxSumSubmatrix(self, matrix, k):\n        \"\"\"\n        :type matrix: List[List[int]]\n        :type k: int\n        :rtype: int\n        \"\"\"\n        m = len(matrix)\n        n = len(matrix[0])\n        max_sum = float('-inf')\n\n        for left in range(n):\n            row_sum = [0] * m\n            for right in range(left, n):\n                for i in range(m):\n                    row_sum[i] += matrix[i][right]\n\n                current_sum = 0\n                sorted_sums = [0]\n                for sum_val in row_sum:\n                    current_sum += sum_val\n                    import bisect\n                    idx = bisect.bisect_left(sorted_sums, current_sum - k)\n                    if idx < len(sorted_sums):\n                        max_sum = max(max_sum, current_sum - sorted_sums[idx])\n                    bisect.insort(sorted_sums, current_sum)\n\n        return max_sum",
+                "solving_duration_seconds": 20.66,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "188. Best Time to Buy and Sell Stock IV",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:24:32",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxProfit(self, k, prices):\n        \"\"\"\n        :type k: int\n        :type prices: List[int]\n        :rtype: int\n        \"\"\"\n        n = len(prices)\n        if n <= 1:\n            return 0\n\n        if k >= n // 2:\n            profit = 0\n            for i in range(1, n):\n                diff = prices[i] - prices[i - 1]\n                if diff > 0:\n                    profit += diff\n            return profit\n\n        dp = [[0] * n for _ in range(k + 1)]\n\n        for i in range(1, k + 1):\n            max_diff = -prices[0]\n            for j in range(1, n):\n                dp[i][j] = max(dp[i][j - 1], prices[j] + max_diff)\n                max_diff = max(max_diff, dp[i - 1][j - 1] - prices[j])\n\n        return dp[k][n - 1]",
+                "solving_duration_seconds": 20.76,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "154. Find Minimum in Rotated Sorted Array II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:25:06",
+            "details": {
+                "final_code": "class Solution(object):\n    def findMin(self, nums):\n        \"\"\"\n        :type nums: List[int]\n        :rtype: int\n        \"\"\"\n        left, right = 0, len(nums) - 1\n\n        while left < right:\n            mid = (left + right) // 2\n\n            if nums[mid] > nums[right]:\n                left = mid + 1\n            elif nums[mid] < nums[right]:\n                right = mid\n            else:\n                right -= 1\n\n        return nums[left]",
+                "solving_duration_seconds": 20.06,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "458. Poor Pigs",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:25:41",
+            "details": {
+                "final_code": "import math\n\nclass Solution(object):\n    def poorPigs(self, buckets, minutesToDie, minutesToTest):\n        \"\"\"\n        :type buckets: int\n        :type minutesToDie: int\n        :type minutesToTest: int\n        :rtype: int\n        \"\"\"\n        if buckets == 1:\n            return 0\n        \n        tests = minutesToTest / minutesToDie\n        \n        return int(math.ceil(math.log(buckets, tests + 1)))",
+                "solving_duration_seconds": 20.07,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "381. Insert Delete GetRandom O(1) - Duplicates allowed",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:26:15",
+            "details": {
+                "final_code": "import random\n\nclass RandomizedCollection(object):\n\n    def __init__(self):\n        self.nums = []\n        self.val_to_indices = {}\n\n    def insert(self, val):\n        self.nums.append(val)\n        if val in self.val_to_indices:\n            self.val_to_indices[val].add(len(self.nums) - 1)\n            return False\n        else:\n            self.val_to_indices[val] = {len(self.nums) - 1}\n            return True\n\n    def remove(self, val):\n        if val not in self.val_to_indices or not self.val_to_indices[val]:\n            return False\n\n        index_to_remove = self.val_to_indices[val].pop()\n        last_element = self.nums[-1]\n\n        if index_to_remove != len(self.nums) - 1:\n            self.nums[index_to_remove] = last_element\n            self.val_to_indices[last_element].add(index_to_remove)\n            self.val_to_indices[last_element].remove(len(self.nums) - 1)\n\n        self.nums.pop()\n        return True\n\n    def getRandom(self):\n        return random.choice(self.nums)",
+                "solving_duration_seconds": 19.92,
+                "solving_duration_formatted": "0:00:19"
+            }
+        },
+        {
+            "problem_title": "440. K-th Smallest in Lexicographical Order",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:26:50",
+            "details": {
+                "final_code": "class Solution(object):\n    def findKthNumber(self, n, k):\n        \"\"\"\n        :type n: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        def count(prefix, n):\n            cnt = 0\n            cur = prefix\n            next_prefix = prefix + 1\n            while cur <= n:\n                cnt += min(n + 1, next_prefix) - cur\n                cur *= 10\n                next_prefix *= 10\n            return cnt\n\n        cur = 1\n        k -= 1\n        while k > 0:\n            cnt = count(cur, n)\n            if k >= cnt:\n                cur += 1\n                k -= cnt\n            else:\n                cur *= 10\n                k -= 1\n        return cur",
+                "solving_duration_seconds": 20.48,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "321. Create Maximum Number",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:27:27",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxNumber(self, nums1, nums2, k):\n        \"\"\"\n        :type nums1: List[int]\n        :type nums2: List[int]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        def pickMax(nums, k):\n            drop = len(nums) - k\n            stack = []\n            for num in nums:\n                while stack and drop > 0 and stack[-1] < num:\n                    stack.pop()\n                    drop -= 1\n                stack.append(num)\n            return stack[:k]\n\n        def merge(nums1, nums2):\n            res = []\n            i, j = 0, 0\n            while i < len(nums1) or j < len(nums2):\n                if nums1[i:] > nums2[j:]:\n                    res.append(nums1[i])\n                    i += 1\n                else:\n                    res.append(nums2[j])\n                    j += 1\n            return res\n\n        res = []\n        for i in range(max(0, k - len(nums2)), min(k, len(nums1)) + 1):\n            pick1 = pickMax(nums1, i)\n            pick2 = pickMax(nums2, k - i)\n            res = max(res, merge(pick1, pick2))\n        return res",
+                "solving_duration_seconds": 22.17,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "460. LFU Cache",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:28:02",
+            "details": {
+                "final_code": "class LFUCache(object):\n\n    def __init__(self, capacity):\n        \"\"\"\n        :type capacity: int\n        \"\"\"\n        self.capacity = capacity\n        self.key_to_val = {}\n        self.key_to_freq = {}\n        self.freq_to_keys = {}\n        self.min_freq = 1\n\n    def get(self, key):\n        \"\"\"\n        :type key: int\n        :rtype: int\n        \"\"\"\n        if key not in self.key_to_val:\n            return -1\n\n        freq = self.key_to_freq[key]\n        self.key_to_freq[key] = freq + 1\n\n        self.freq_to_keys[freq].remove(key)\n        if not self.freq_to_keys[freq]:\n            del self.freq_to_keys[freq]\n            if self.min_freq == freq:\n                self.min_freq += 1\n\n        if freq + 1 not in self.freq_to_keys:\n            self.freq_to_keys[freq + 1] = set()\n        self.freq_to_keys[freq + 1].add(key)\n\n        return self.key_to_val[key]\n\n    def put(self, key, value):\n        \"\"\"\n        :type key: int\n        :type value: int\n        :rtype: None\n        \"\"\"\n        if self.capacity == 0:\n            return\n\n        if key in self.key_to_val:\n            self.key_to_val[key] = value\n            self.get(key)\n            return\n\n        if len(self.key_to_val) == self.capacity:\n            evict_key = self.freq_to_keys[self.min_freq].pop()\n            if not self.freq_to_keys[self.min_freq]:\n                del self.freq_to_keys[self.min_freq]\n            del self.key_to_val[evict_key]\n            del self.key_to_freq[evict_key]\n\n        self.key_to_val[key] = value\n        self.key_to_freq[key] = 1\n        if 1 not in self.freq_to_keys:\n            self.freq_to_keys[1] = set()\n        self.freq_to_keys[1].add(key)\n        self.min_freq = 1",
+                "solving_duration_seconds": 20.83,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "132. Palindrome Partitioning II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:28:39",
+            "details": {
+                "final_code": "class Solution(object):\n    def minCut(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\"\n        n = len(s)\n        if n <= 1:\n            return 0\n\n        # isPalindrome[i][j] is True if s[i:j+1] is a palindrome\n        isPalindrome = [[False] * n for _ in range(n)]\n        for i in range(n):\n            isPalindrome[i][i] = True\n        for i in range(n - 1):\n            if s[i] == s[i + 1]:\n                isPalindrome[i][i + 1] = True\n        for length in range(3, n + 1):\n            for i in range(n - length + 1):\n                j = i + length - 1\n                if s[i] == s[j] and isPalindrome[i + 1][j - 1]:\n                    isPalindrome[i][j] = True\n\n        # dp[i] is the minimum cuts needed for s[:i+1]\n        dp = [0] * n\n        for i in range(n):\n            if isPalindrome[0][i]:\n                dp[i] = 0\n            else:\n                dp[i] = i\n                for j in range(1, i + 1):\n                    if isPalindrome[j][i]:\n                        dp[i] = min(dp[i], dp[j - 1] + 1)\n\n        return dp[n - 1]",
+                "solving_duration_seconds": 22.2,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "32. Longest Valid Parentheses",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:29:15",
+            "details": {
+                "final_code": "class Solution(object):\n    def longestValidParentheses(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\"\n        max_len = 0\n        stack = [-1]\n        for i, char in enumerate(s):\n            if char == '(':\n                stack.append(i)\n            else:\n                stack.pop()\n                if not stack:\n                    stack.append(i)\n                else:\n                    max_len = max(max_len, i - stack[-1])\n        return max_len",
+                "solving_duration_seconds": 21.28,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "301. Remove Invalid Parentheses",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:29:51",
+            "details": {
+                "final_code": "class Solution(object):\n    def removeInvalidParentheses(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: List[str]\n        \"\"\"\n        def is_valid(string):\n            count = 0\n            for char in string:\n                if char == '(':\n                    count += 1\n                elif char == ')':\n                    count -= 1\n                if count < 0:\n                    return False\n            return count == 0\n\n        queue = {s}\n        visited = {s}\n        result = []\n\n        while queue:\n            next_queue = set()\n            for string in queue:\n                if is_valid(string):\n                    result.append(string)\n\n            if result:\n                return result\n\n            for string in queue:\n                for i in range(len(string)):\n                    if string[i] in ('(', ')'):\n                        new_string = string[:i] + string[i+1:]\n                        if new_string not in visited:\n                            next_queue.add(new_string)\n                            visited.add(new_string)\n            queue = next_queue\n\n        return [\"\"]",
+                "solving_duration_seconds": 21.71,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "446. Arithmetic Slices II - Subsequence",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:30:26",
+            "details": {
+                "final_code": "class Solution(object):\n    def numberOfArithmeticSlices(self, nums):\n        \"\"\"\n        :type nums: List[int]\n        :rtype: int\n        \"\"\"\n        n = len(nums)\n        dp = [{} for _ in range(n)]\n        ans = 0\n        for i in range(n):\n            for j in range(i):\n                diff = nums[i] - nums[j]\n                if diff in dp[j]:\n                    count = dp[j][diff]\n                else:\n                    count = 0\n                dp[i][diff] = dp[i].get(diff, 0) + count + 1\n                ans += count\n        return ans",
+                "solving_duration_seconds": 20.35,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "335. Self Crossing",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:31:03",
+            "details": {
+                "final_code": "class Solution(object):\n    def isSelfCrossing(self, distance):\n        \"\"\"\n        :type distance: List[int]\n        :rtype: bool\n        \"\"\"\n        n = len(distance)\n        if n <= 3:\n            return False\n        \n        for i in range(3, n):\n            if distance[i] >= distance[i-2] and distance[i-1] <= distance[i-3]:\n                return True\n            \n            if i >= 4 and distance[i-1] == distance[i-3] and distance[i] + distance[i-4] >= distance[i-2]:\n                return True\n            \n            if i >= 5 and distance[i-2] >= distance[i] and distance[i] + distance[i-4] >= distance[i-2] and distance[i-1] <= distance[i-3] and distance[i-1] + distance[i-5] >= distance[i-3]:\n                return True\n        \n        return False",
+                "solving_duration_seconds": 21.56,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "488. Zuma Game",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:32:02",
+            "details": {
+                "error": "Timeout waiting for test results",
+                "last_code_attempt": "class Solution(object):\n    def findMinStep(self, board, hand):\n        \"\"\"\n        :type board: str\n        :type hand: str\n        :rtype: int\n        \"\"\"\n        hand_counts = {}\n        for ball in hand:\n            hand_counts[ball] = hand_counts.get(ball, 0) + 1\n\n        def clean_board(board):\n            while True:\n                new_board = \"\"\n                i = 0\n                while i < len(board):\n                    j = i\n                    while j < len(board) and board[i] == board[j]:\n                        j += 1\n                    if j - i >= 3:\n                        i = j\n                    else:\n                        new_board += board[i:j]\n                        i = j\n                if len(new_board) == len(board):\n                    break\n                board = new_board\n            return board\n\n        def solve(board, hand_counts):\n            board = clean_board(board)\n            if not board:\n                return 0\n\n            min_steps = float('inf')\n            for i in range(len(board) + 1):\n                for ball in hand_counts:\n                    if hand_counts[ball] > 0:\n                        new_board = board[:i] + ball + board[i:]\n                        hand_counts[ball] -= 1\n                        steps = solve(new_board, hand_counts)\n                        if steps != float('inf'):\n                            min_steps = min(min_steps, steps + 1)\n                        hand_counts[ball] += 1\n\n            return min_steps\n\n        result = solve(board, hand_counts)\n        return result if result != float('inf') else -1",
+                "solving_duration_seconds": 43.45,
+                "solving_duration_formatted": "0:00:43"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:32:37",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.11,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "282. Expression Add Operators",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:33:15",
+            "details": {
+                "final_code": "class Solution(object):\n    def addOperators(self, num, target):\n        \"\"\"\n        :type num: str\n        :type target: int\n        :rtype: List[str]\n        \"\"\"\n        res = []\n        n = len(num)\n\n        def backtrack(index, path, current_val, prev_operand):\n            if index == n:\n                if current_val == target:\n                    res.append(path)\n                return\n\n            for j in range(index, n):\n                if j > index and num[index] == '0':\n                    break\n\n                current_str = num[index:j + 1]\n                current_num = int(current_str)\n\n                if index == 0:\n                    backtrack(j + 1, current_str, current_num, current_num)\n                else:\n                    backtrack(j + 1, path + '+' + current_str, current_val + current_num, current_num)\n                    backtrack(j + 1, path + '-' + current_str, current_val - current_num, -current_num)\n                    backtrack(j + 1, path + '*' + current_str, current_val - prev_operand + prev_operand * current_num, prev_operand * current_num)\n\n        backtrack(0, \"\", 0, 0)\n        return res",
+                "solving_duration_seconds": 22.18,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "239. Sliding Window Maximum",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:33:50",
+            "details": {
+                "final_code": "from collections import deque\n\nclass Solution(object):\n    def maxSlidingWindow(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        if not nums:\n            return []\n        \n        n = len(nums)\n        if k == 1:\n            return nums\n        \n        result = []\n        dq = deque()\n        \n        for i in range(n):\n            # Remove elements out of the window\n            while dq and dq[0] <= i - k:\n                dq.popleft()\n            \n            # Remove elements smaller than the current element\n            while dq and nums[dq[-1]] <= nums[i]:\n                dq.pop()\n            \n            dq.append(i)\n            \n            # Add the maximum element to the result\n            if i >= k - 1:\n                result.append(nums[dq[0]])\n        \n        return result",
+                "solving_duration_seconds": 20.52,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "330. Patching Array",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:34:24",
+            "details": {
+                "final_code": "class Solution(object):\n    def minPatches(self, nums, n):\n        \"\"\"\n        :type nums: List[int]\n        :type n: int\n        :rtype: int\n        \"\"\"\n        patches = 0\n        reachable = 0\n        i = 0\n        while reachable < n:\n            if i < len(nums) and nums[i] <= reachable + 1:\n                reachable += nums[i]\n                i += 1\n            else:\n                reachable += reachable + 1\n                patches += 1\n        return patches",
+                "solving_duration_seconds": 20.09,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "479. Largest Palindrome Product",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:35:00",
+            "details": {
+                "final_code": "class Solution(object):\n    def largestPalindrome(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: int\n        \"\"\"\n        if n == 1:\n            return 9\n        \n        upper_bound = 10**n - 1\n        lower_bound = 10**(n - 1)\n        \n        max_num = upper_bound\n        \n        for i in range(max_num, lower_bound - 1, -1):\n            palindrome = int(str(i) + str(i)[::-1])\n            \n            for j in range(max_num, int(palindrome**0.5) - 1, -1):\n                if palindrome % j == 0 and palindrome // j >= lower_bound and palindrome // j <= upper_bound:\n                    return palindrome % 1337\n        return 0",
+                "solving_duration_seconds": 20.32,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:35:34",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.24,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "295. Find Median from Data Stream",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:36:09",
+            "details": {
+                "final_code": "import heapq\n\nclass MedianFinder(object):\n\n    def __init__(self):\n        self.small = []  # max heap\n        self.large = []  # min heap\n\n    def addNum(self, num):\n        if not self.small or num <= -self.small[0]:\n            heapq.heappush(self.small, -num)\n        else:\n            heapq.heappush(self.large, num)\n\n        if len(self.small) > len(self.large) + 1:\n            heapq.heappush(self.large, -heapq.heappop(self.small))\n        elif len(self.large) > len(self.small):\n            heapq.heappush(self.small, -heapq.heappop(self.large))\n\n    def findMedian(self):\n        if len(self.small) == len(self.large):\n            return (-self.small[0] + self.large[0]) / 2.0\n        else:\n            return -self.small[0]\n\n\n# Your MedianFinder object will be instantiated and called as such:\n# obj = MedianFinder()\n# obj.addNum(num)\n# param_2 = obj.findMedian()",
+                "solving_duration_seconds": 19.62,
+                "solving_duration_formatted": "0:00:19"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:36:43",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.08,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "514. Freedom Trail",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:37:18",
+            "details": {
+                "final_code": "class Solution(object):\n    def findRotateSteps(self, ring, key):\n        \"\"\"\n        :type ring: str\n        :type key: str\n        :rtype: int\n        \"\"\"\n        n = len(ring)\n        m = len(key)\n        pos = [[] for _ in range(26)]\n        for i, c in enumerate(ring):\n            pos[ord(c) - ord('a')].append(i)\n        \n        dp = [[float('inf')] * n for _ in range(m + 1)]\n        dp[0][0] = 0\n        \n        for i in range(m):\n            for j in range(n):\n                if dp[i][j] != float('inf'):\n                    for k in pos[ord(key[i]) - ord('a')]:\n                        diff = abs(j - k)\n                        steps = min(diff, n - diff)\n                        dp[i + 1][k] = min(dp[i + 1][k], dp[i][j] + steps + 1)\n        \n        return min(dp[m])",
+                "solving_duration_seconds": 20.75,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "403. Frog Jump",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:37:53",
+            "details": {
+                "final_code": "class Solution(object):\n    def canCross(self, stones):\n        \"\"\"\n        :type stones: List[int]\n        :rtype: bool\n        \"\"\"\n        stone_set = set(stones)\n        jumps = {0: {0}}\n        last_stone = stones[-1]\n\n        for stone in stones:\n            if stone in jumps:\n                for k in jumps[stone]:\n                    for step in [k - 1, k, k + 1]:\n                        if step > 0 and stone + step in stone_set:\n                            if stone + step == last_stone:\n                                return True\n                            if stone + step not in jumps:\n                                jumps[stone + step] = set()\n                            jumps[stone + step].add(step)\n\n        return False",
+                "solving_duration_seconds": 20.23,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "60. Permutation Sequence",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:38:29",
+            "details": {
+                "final_code": "class Solution(object):\n    def getPermutation(self, n, k):\n        \"\"\"\n        :type n: int\n        :type k: int\n        :rtype: str\n        \"\"\"\n        nums = list(range(1, n + 1))\n        factorial = [1] * (n + 1)\n        for i in range(2, n + 1):\n            factorial[i] = factorial[i - 1] * i\n        \n        k -= 1\n        result = \"\"\n        for i in range(n, 0, -1):\n            index = k // factorial[i - 1]\n            result += str(nums[index])\n            nums.pop(index)\n            k %= factorial[i - 1]\n        \n        return result",
+                "solving_duration_seconds": 21.37,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "126. Word Ladder II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:39:05",
+            "details": {
+                "final_code": "class Solution(object):\n    def findLadders(self, beginWord, endWord, wordList):\n        \"\"\"\n        :type beginWord: str\n        :type endWord: str\n        :type wordList: List[str]\n        :rtype: List[List[str]]\n        \"\"\"\n        wordList = set(wordList)\n        if endWord not in wordList:\n            return []\n\n        level = {beginWord}\n        parents = {beginWord: []}\n        while level and endWord not in parents:\n            next_level = set()\n            for word in level:\n                wordList.discard(word)\n            for word in level:\n                for i in range(len(word)):\n                    for char in 'abcdefghijklmnopqrstuvwxyz':\n                        new_word = word[:i] + char + word[i+1:]\n                        if new_word in wordList:\n                            next_level.add(new_word)\n                            if new_word not in parents:\n                                parents[new_word] = []\n                            parents[new_word].append(word)\n            level = next_level\n\n        res = []\n        def backtrack(word, path):\n            if not parents[word]:\n                res.append([word] + path)\n                return\n            for parent in parents[word]:\n                backtrack(parent, [word] + path)\n\n        if endWord in parents:\n            backtrack(endWord, [])\n        return res",
+                "solving_duration_seconds": 21.09,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "472. Concatenated Words",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:39:35",
+            "details": {
+                "error": "Wrong Answer",
+                "failed_cases": [
+                    {
+                        "Input": "[\"cat\",\"cats\",\"catsdogcats\",\"dog\",\"dogcatsdog\",\"hippopotamuses\",\"rat\",\"ratcatdogcat\"]",
+                        "Output": "[]",
+                        "Expected": "[\"catsdogcats\",\"dogcatsdog\",\"ratcatdogcat\"]"
+                    },
+                    {
+                        "Input": "[\"cat\",\"dog\",\"catdog\"]",
+                        "Output": "[]",
+                        "Expected": "[\"catdog\"]"
+                    }
+                ],
+                "last_code_attempt": "class Solution(object):\n    def findAllConcatenatedWordsInADict(self, words):\n        \"\"\"\n        :type words: List[str]\n        :rtype: List[str]\n        \"\"\"\n        word_set = set(words)\n        result = []\n\n        def can_form(word):\n            if not word:\n                return True\n            \n            for i in range(1, len(word) + 1):\n                prefix = word[:i]\n                if prefix in word_set and prefix != word and can_form(word[i:]):\n                    return True\n            return False\n\n        for word in words:\n            if can_form(word):\n                result.append(word)\n\n        return result",
+                "solving_duration_seconds": 15.16,
+                "solving_duration_formatted": "0:00:15"
+            }
+        },
+        {
+            "problem_title": "546. Remove Boxes",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:40:07",
+            "details": {
+                "error": "Wrong Answer",
+                "failed_cases": [
+                    {
+                        "Input": "[1,3,2,2,2,3,4,3,1]",
+                        "Output": "27",
+                        "Expected": "23"
+                    },
+                    {
+                        "Input": "[1,1,1]",
+                        "Output": "9",
+                        "Expected": "9"
+                    },
+                    {
+                        "Input": "[1]",
+                        "Output": "1",
+                        "Expected": "1"
+                    }
+                ],
+                "last_code_attempt": "class Solution(object):\n    def removeBoxes(self, boxes):\n        \"\"\"\n        :type boxes: List[int]\n        :rtype: int\n        \"\"\"\n        n = len(boxes)\n        dp = [[[0] * n for _ in range(n)] for _ in range(n)]\n\n        def calculatePoints(l, r, k):\n            if l > r:\n                return 0\n            if dp[l][r][k] != 0:\n                return dp[l][r][k]\n\n            while r > l and boxes[r] == boxes[r - 1]:\n                r -= 1\n                k += 1\n\n            dp[l][r][k] = calculatePoints(l, r - 1, 0) + (k + 1) * (k + 1)\n\n            for i in range(l, r):\n                if boxes[i] == boxes[r]:\n                    dp[l][r][k] = max(dp[l][r][k], calculatePoints(l, i - 1, 0) + calculatePoints(i, r - 1, k + 1))\n\n            return dp[l][r][k]\n\n        return calculatePoints(0, n - 1, 0)",
+                "solving_duration_seconds": 17.0,
+                "solving_duration_formatted": "0:00:16"
+            }
+        },
+        {
+            "problem_title": "87. Scramble String",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:40:44",
+            "details": {
+                "final_code": "class Solution(object):\n    def isScramble(self, s1, s2):\n        \"\"\"\n        :type s1: str\n        :type s2: str\n        :rtype: bool\n        \"\"\"\n        n = len(s1)\n        if n != len(s2):\n            return False\n        \n        if s1 == s2:\n            return True\n        \n        if sorted(s1) != sorted(s2):\n            return False\n        \n        dp = {}\n        \n        def solve(s1, s2):\n            if (s1, s2) in dp:\n                return dp[(s1, s2)]\n            \n            if s1 == s2:\n                dp[(s1, s2)] = True\n                return True\n            \n            if sorted(s1) != sorted(s2):\n                dp[(s1, s2)] = False\n                return False\n            \n            for i in range(1, len(s1)):\n                if (solve(s1[:i], s2[:i]) and solve(s1[i:], s2[i:])) or \\\n                   (solve(s1[:i], s2[len(s2)-i:]) and solve(s1[i:], s2[:len(s2)-i])):\n                    dp[(s1, s2)] = True\n                    return True\n            \n            dp[(s1, s2)] = False\n            return False\n        \n        return solve(s1, s2)",
+                "solving_duration_seconds": 23.18,
+                "solving_duration_formatted": "0:00:23"
+            }
+        },
+        {
+            "problem_title": "214. Shortest Palindrome",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:41:20",
+            "details": {
+                "final_code": "class Solution(object):\n    def shortestPalindrome(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: str\n        \"\"\"\n        n = len(s)\n        if n == 0:\n            return \"\"\n\n        for i in range(n - 1, -1, -1):\n            if s[:i+1] == s[:i+1][::-1]:\n                return s[i+1:][::-1] + s",
+                "solving_duration_seconds": 20.07,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "329. Longest Increasing Path in a Matrix",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:41:57",
+            "details": {
+                "final_code": "class Solution(object):\n    def longestIncreasingPath(self, matrix):\n        \"\"\"\n        :type matrix: List[List[int]]\n        :rtype: int\n        \"\"\"\n        if not matrix:\n            return 0\n\n        rows, cols = len(matrix), len(matrix[0])\n        dp = [[0] * cols for _ in range(rows)]\n        max_length = 0\n\n        def dfs(row, col):\n            if dp[row][col] != 0:\n                return dp[row][col]\n\n            length = 1\n            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n\n            for dr, dc in directions:\n                new_row, new_col = row + dr, col + dc\n                if 0 <= new_row < rows and 0 <= new_col < cols and matrix[new_row][new_col] > matrix[row][col]:\n                    length = max(length, 1 + dfs(new_row, new_col))\n\n            dp[row][col] = length\n            return length\n\n        for i in range(rows):\n            for j in range(cols):\n                max_length = max(max_length, dfs(i, j))\n\n        return max_length",
+                "solving_duration_seconds": 21.93,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "312. Burst Balloons",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:42:32",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxCoins(self, nums):\n        \"\"\"\n        :type nums: List[int]\n        :rtype: int\n        \"\"\"\n        nums = [1] + nums + [1]\n        n = len(nums)\n        dp = [[0] * n for _ in range(n)]\n\n        for length in range(2, n):\n            for left in range(0, n - length):\n                right = left + length\n                for i in range(left + 1, right):\n                    dp[left][right] = max(dp[left][right],\n                                           nums[left] * nums[i] * nums[right] + dp[left][i] + dp[i][right])\n\n        return dp[0][n - 1]",
+                "solving_duration_seconds": 20.31,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "502. IPO",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:43:07",
+            "details": {
+                "final_code": "import heapq\n\nclass Solution(object):\n    def findMaximizedCapital(self, k, w, profits, capital):\n        \"\"\"\n        :type k: int\n        :type w: int\n        :type profits: List[int]\n        :type capital: List[int]\n        :rtype: int\n        \"\"\"\n        projects = sorted(zip(capital, profits))\n        available_projects = []\n        i = 0\n        for _ in range(k):\n            while i < len(projects) and projects[i][0] <= w:\n                heapq.heappush(available_projects, -projects[i][1])\n                i += 1\n            if available_projects:\n                w += -heapq.heappop(available_projects)\n            else:\n                break\n        return w",
+                "solving_duration_seconds": 20.53,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:43:42",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.16,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "212. Word Search II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:44:17",
+            "details": {
+                "final_code": "class Solution(object):\n    def findWords(self, board, words):\n        \"\"\"\n        :type board: List[List[str]]\n        :type words: List[str]\n        :rtype: List[str]\n        \"\"\"\n        trie = {}\n        for word in words:\n            node = trie\n            for char in word:\n                node = node.setdefault(char, {})\n            node['#'] = word\n\n        result = []\n        m, n = len(board), len(board[0])\n\n        def dfs(i, j, node):\n            if '#' in node:\n                result.append(node['#'])\n                del node['#']\n\n            if i < 0 or i >= m or j < 0 or j >= n or board[i][j] not in node:\n                return\n\n            char = board[i][j]\n            board[i][j] = '*'\n            dfs(i + 1, j, node[char])\n            dfs(i - 1, j, node[char])\n            dfs(i, j + 1, node[char])\n            dfs(i, j - 1, node[char])\n            board[i][j] = char\n\n        for i in range(m):\n            for j in range(n):\n                dfs(i, j, trie)\n\n        return result",
+                "solving_duration_seconds": 20.96,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "591. Tag Validator",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:44:55",
+            "details": {
+                "final_code": "class Solution(object):\n    def isValid(self, code):\n        \"\"\"\n        :type code: str\n        :rtype: bool\n        \"\"\"\n        stack = []\n        i = 0\n        n = len(code)\n\n        while i < n:\n            if i > 0 and not stack:\n                return False\n\n            if code[i:i + 9] == '<![CDATA[':\n                i = code.find(']]>', i + 9)\n                if i < 0:\n                    return False\n                i += 3\n            elif code[i:i + 2] == '</':\n                j = code.find('>', i + 2)\n                if j < 0:\n                    return False\n                tag_name = code[i + 2:j]\n                if not stack or stack[-1] != tag_name:\n                    return False\n                stack.pop()\n                i = j + 1\n            elif code[i] == '<':\n                j = code.find('>', i + 1)\n                if j < 0:\n                    return False\n                tag_name = code[i + 1:j]\n                if not tag_name or not tag_name.isupper() or not 1 <= len(tag_name) <= 9:\n                    return False\n                stack.append(tag_name)\n                i = j + 1\n            else:\n                i += 1\n\n        return not stack",
+                "solving_duration_seconds": 22.09,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "410. Split Array Largest Sum",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:45:30",
+            "details": {
+                "final_code": "class Solution(object):\n    def splitArray(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: int\n        \"\"\"\n        def is_possible(max_sum):\n            count = 1\n            current_sum = 0\n            for num in nums:\n                if current_sum + num > max_sum:\n                    count += 1\n                    current_sum = num\n                else:\n                    current_sum += num\n            return count <= k\n\n        left = max(nums)\n        right = sum(nums)\n        ans = right\n\n        while left <= right:\n            mid = (left + right) // 2\n            if is_possible(mid):\n                ans = mid\n                right = mid - 1\n            else:\n                left = mid + 1\n\n        return ans",
+                "solving_duration_seconds": 20.39,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "630. Course Schedule III",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:46:06",
+            "details": {
+                "final_code": "import heapq\n\nclass Solution(object):\n    def scheduleCourse(self, courses):\n        \"\"\"\n        :type courses: List[List[int]]\n        :rtype: int\n        \"\"\"\n        courses.sort(key=lambda x: x[1])\n        \n        heap = []\n        time = 0\n        \n        for duration, lastDay in courses:\n            if time + duration <= lastDay:\n                time += duration\n                heapq.heappush(heap, -duration)\n            elif heap and duration < -heap[0]:\n                time -= -heapq.heappop(heap)\n                time += duration\n                heapq.heappush(heap, -duration)\n        \n        return len(heap)",
+                "solving_duration_seconds": 21.31,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "85. Maximal Rectangle",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:46:42",
+            "details": {
+                "final_code": "class Solution(object):\n    def maximalRectangle(self, matrix):\n        \"\"\"\n        :type matrix: List[List[str]]\n        :rtype: int\n        \"\"\"\n        if not matrix:\n            return 0\n\n        rows = len(matrix)\n        cols = len(matrix[0])\n        heights = [0] * cols\n        max_area = 0\n\n        for i in range(rows):\n            for j in range(cols):\n                if matrix[i][j] == '1':\n                    heights[j] += 1\n                else:\n                    heights[j] = 0\n\n            max_area = max(max_area, self.largestRectangleArea(heights))\n\n        return max_area\n\n    def largestRectangleArea(self, heights):\n        \"\"\"\n        :type heights: List[int]\n        :rtype: int\n        \"\"\"\n        stack = []\n        max_area = 0\n        heights = [0] + heights + [0]  # Add padding to handle edge cases\n\n        for i in range(len(heights)):\n            while stack and heights[i] < heights[stack[-1]]:\n                height = heights[stack.pop()]\n                width = i - stack[-1] - 1\n                max_area = max(max_area, height * width)\n            stack.append(i)\n\n        return max_area",
+                "solving_duration_seconds": 21.88,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "224. Basic Calculator",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:47:18",
+            "details": {
+                "final_code": "class Solution(object):\n    def calculate(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\"\n        stack = []\n        operand = 0\n        result = 0\n        sign = 1\n\n        for char in s:\n            if char.isdigit():\n                operand = (operand * 10) + int(char)\n            elif char == '+':\n                result += sign * operand\n                sign = 1\n                operand = 0\n            elif char == '-':\n                result += sign * operand\n                sign = -1\n                operand = 0\n            elif char == '(':\n                stack.append(result)\n                stack.append(sign)\n                sign = 1\n                result = 0\n            elif char == ')':\n                result += sign * operand\n                result *= stack.pop()\n                result += stack.pop()\n                operand = 0\n\n        return result + sign * operand",
+                "solving_duration_seconds": 21.42,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:47:53",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.14,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "315. Count of Smaller Numbers After Self",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:48:21",
+            "details": {
+                "error": "IndexError: list index out of range\n    counts[left[i][0]] = right_counts[left[i][0] - mid] + smaller_right + left_counts[left[i][0]]\nLine 23 in sort_and_count (Solution.py)\n    right, right_counts = sort_and_count(enum[mid:])\nLine 13 in sort_and_count (Solution.py)\n    _, counts = sort_and_count(enum)\nLine 42 in countSmaller (Solution.py)\n    ret = Solution().countSmaller(param_1)\nLine 68 in _driver (Solution.py)\n    _driver()",
+                "last_code_attempt": "class Solution(object):\n    def countSmaller(self, nums):\n        \"\"\"\n        :type nums: List[int]\n        :rtype: List[int]\n        \"\"\"\n        def sort_and_count(enum):\n            if len(enum) <= 1:\n                return enum, [0] * len(enum)\n\n            mid = len(enum) // 2\n            left, left_counts = sort_and_count(enum[:mid])\n            right, right_counts = sort_and_count(enum[mid:])\n            \n            merged = []\n            counts = [0] * len(enum)\n            i, j = 0, 0\n            smaller_right = 0\n\n            while i < len(left) and j < len(right):\n                if left[i][1] > right[j][1]:\n                    merged.append(left[i])\n                    counts[left[i][0]] = right_counts[left[i][0] - mid] + smaller_right + left_counts[left[i][0]]\n                    i += 1\n                else:\n                    merged.append(right[j])\n                    smaller_right += 1\n                    j += 1\n\n            while i < len(left):\n                merged.append(left[i])\n                counts[left[i][0]] = right_counts[left[i][0] - mid] + smaller_right + left_counts[left[i][0]]\n                i += 1\n\n            while j < len(right):\n                merged.append(right[j])\n                j += 1\n\n            return merged, counts\n\n        enum = list(enumerate(nums))\n        _, counts = sort_and_count(enum)\n        return counts",
+                "solving_duration_seconds": 13.96,
+                "solving_duration_formatted": "0:00:13"
+            }
+        },
+        {
+            "problem_title": "632. Smallest Range Covering Elements from K Lists",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:48:56",
+            "details": {
+                "final_code": "import heapq\n\nclass Solution(object):\n    def smallestRange(self, nums):\n        \"\"\"\n        :type nums: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        k = len(nums)\n        pq = []\n        max_val = float('-inf')\n        \n        for i in range(k):\n            heapq.heappush(pq, (nums[i][0], i, 0))\n            max_val = max(max_val, nums[i][0])\n        \n        range_start = float('-inf')\n        range_end = float('inf')\n        \n        while pq:\n            min_val, list_idx, elem_idx = heapq.heappop(pq)\n            \n            if max_val - min_val < range_end - range_start:\n                range_start = min_val\n                range_end = max_val\n            elif max_val - min_val == range_end - range_start and min_val < range_start:\n                range_start = min_val\n                range_end = max_val\n            \n            if elem_idx + 1 < len(nums[list_idx]):\n                new_val = nums[list_idx][elem_idx + 1]\n                heapq.heappush(pq, (new_val, list_idx, elem_idx + 1))\n                max_val = max(max_val, new_val)\n            else:\n                break\n        \n        return [range_start, range_end]",
+                "solving_duration_seconds": 20.96,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "639. Decode Ways II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:49:33",
+            "details": {
+                "final_code": "class Solution(object):\n    def numDecodings(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\"\n        n = len(s)\n        MOD = 10**9 + 7\n        dp = [0] * (n + 1)\n        dp[0] = 1\n\n        for i in range(1, n + 1):\n            if s[i - 1] == '*':\n                dp[i] = (dp[i - 1] * 9) % MOD\n            elif s[i - 1] != '0':\n                dp[i] = dp[i - 1]\n            else:\n                dp[i] = 0\n\n            if i > 1:\n                if s[i - 2] == '*':\n                    if s[i - 1] == '*':\n                        dp[i] = (dp[i] + dp[i - 2] * 15) % MOD\n                    elif s[i - 1] <= '6':\n                        dp[i] = (dp[i] + dp[i - 2] * 2) % MOD\n                    else:\n                        dp[i] = (dp[i] + dp[i - 2]) % MOD\n                elif s[i - 2] == '1':\n                    if s[i - 1] == '*':\n                        dp[i] = (dp[i] + dp[i - 2] * 9) % MOD\n                    else:\n                        dp[i] = (dp[i] + dp[i - 2]) % MOD\n                elif s[i - 2] == '2':\n                    if s[i - 1] == '*':\n                        dp[i] = (dp[i] + dp[i - 2] * 6) % MOD\n                    elif s[i - 1] <= '6':\n                        dp[i] = (dp[i] + dp[i - 2]) % MOD\n                    else:\n                        dp[i] = (dp[i] + 0) % MOD\n                else:\n                    pass\n\n        return dp[n] % MOD",
+                "solving_duration_seconds": 21.7,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "466. Count The Repetitions",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:50:09",
+            "details": {
+                "final_code": "class Solution(object):\n    def getMaxRepetitions(self, s1, n1, s2, n2):\n        \"\"\"\n        :type s1: str\n        :type n1: int\n        :type s2: str\n        :type n2: int\n        :rtype: int\n        \"\"\"\n        if not s1 or not s2:\n            return 0\n\n        s1_len, s2_len = len(s1), len(s2)\n        repeat_count = [0] * (s2_len + 1)\n        next_index = [0] * (s2_len + 1)\n        j = 0\n        count = 0\n\n        for k in range(1, n1 + 1):\n            for i in range(s1_len):\n                if s1[i] == s2[j]:\n                    j += 1\n                    if j == s2_len:\n                        count += 1\n                        j = 0\n\n            repeat_count[k] = count\n            next_index[k] = j\n\n            for start in range(1, k):\n                if next_index[start] == j:\n                    prefix_count = repeat_count[start]\n                    pattern_count = (repeat_count[k] - repeat_count[start]) * ((n1 - start) / (k - start))\n                    suffix_count = repeat_count[start + (n1 - start) % (k - start)] - repeat_count[start]\n                    return (prefix_count + pattern_count + suffix_count) / n2\n\n        return repeat_count[n1] / n2",
+                "solving_duration_seconds": 21.33,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "564. Find the Closest Palindrome",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:50:44",
+            "details": {
+                "final_code": "class Solution(object):\n    def nearestPalindromic(self, n):\n        \"\"\"\n        :type n: str\n        :rtype: str\n        \"\"\"\n        k = len(n)\n        num = int(n)\n        candidates = [str(10**(k-1) - 1), str(10**k + 1)]\n        prefix = int(n[:(k+1)//2])\n        for p in [prefix - 1, prefix, prefix + 1]:\n            p_str = str(p)\n            candidate = p_str + (p_str[:k//2][::-1])\n            candidates.append(candidate)\n\n        ans = \"\"\n        min_diff = float('inf')\n        \n        for candidate in candidates:\n            if candidate == n:\n                continue\n            diff = abs(int(candidate) - num)\n            if diff < min_diff:\n                min_diff = diff\n                ans = candidate\n            elif diff == min_diff:\n                if int(candidate) < int(ans):\n                    ans = candidate\n        return ans",
+                "solving_duration_seconds": 20.78,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:51:18",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.08,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "629. K Inverse Pairs Array",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:51:53",
+            "details": {
+                "final_code": "class Solution(object):\n    def kInversePairs(self, n, k):\n        \"\"\"\n        :type n: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        dp = [[0] * (k + 1) for _ in range(n + 1)]\n        dp[0][0] = 1\n        mod = 10**9 + 7\n\n        for i in range(1, n + 1):\n            dp[i][0] = 1\n            for j in range(1, k + 1):\n                dp[i][j] = (dp[i][j - 1] + dp[i - 1][j]) % mod\n                if j >= i:\n                    dp[i][j] = (dp[i][j] - dp[i - 1][j - i] + mod) % mod\n\n        return dp[n][k]",
+                "solving_duration_seconds": 20.35,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "517. Super Washing Machines",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:52:28",
+            "details": {
+                "final_code": "class Solution(object):\n    def findMinMoves(self, machines):\n        \"\"\"\n        :type machines: List[int]\n        :rtype: int\n        \"\"\"\n        total = sum(machines)\n        n = len(machines)\n        if total % n != 0:\n            return -1\n        \n        avg = total // n\n        ans = 0\n        curr_sum = 0\n        \n        for i in range(n):\n            curr_sum += machines[i] - avg\n            ans = max(ans, abs(curr_sum), machines[i] - avg)\n            \n        return ans",
+                "solving_duration_seconds": 21.11,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "552. Student Attendance Record II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:53:04",
+            "details": {
+                "final_code": "class Solution(object):\n    def checkRecord(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: int\n        \"\"\"\n        MOD = 10**9 + 7\n        dp = {}\n\n        def solve(idx, absent_count, late_streak):\n            if idx == n:\n                return 1\n\n            if (idx, absent_count, late_streak) in dp:\n                return dp[(idx, absent_count, late_streak)]\n\n            ans = 0\n            # Present\n            ans = (ans + solve(idx + 1, absent_count, 0)) % MOD\n\n            # Absent\n            if absent_count < 1:\n                ans = (ans + solve(idx + 1, absent_count + 1, 0)) % MOD\n\n            # Late\n            if late_streak < 2:\n                ans = (ans + solve(idx + 1, absent_count, late_streak + 1)) % MOD\n\n            dp[(idx, absent_count, late_streak)] = ans\n            return ans\n\n        return solve(0, 0, 0)",
+                "solving_duration_seconds": 21.67,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "668. Kth Smallest Number in Multiplication Table",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:53:39",
+            "details": {
+                "final_code": "class Solution(object):\n    def findKthNumber(self, m, n, k):\n        \"\"\"\n        :type m: int\n        :type n: int\n        :type k: int\n        :rtype: int\n        \"\"\"\n        def count(x):\n            cnt = 0\n            for i in range(1, m + 1):\n                cnt += min(x // i, n)\n            return cnt\n\n        left, right = 1, m * n\n        while left < right:\n            mid = (left + right) // 2\n            if count(mid) < k:\n                left = mid + 1\n            else:\n                right = mid\n        return left",
+                "solving_duration_seconds": 20.34,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "391. Perfect Rectangle",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:54:17",
+            "details": {
+                "final_code": "class Solution(object):\n    def isRectangleCover(self, rectangles):\n        \"\"\"\n        :type rectangles: List[List[int]]\n        :rtype: bool\n        \"\"\"\n        area = 0\n        corners = set()\n        x1 = float('inf')\n        y1 = float('inf')\n        x2 = float('-inf')\n        y2 = float('-inf')\n\n        for rect in rectangles:\n            x, y, a, b = rect\n            area += (a - x) * (b - y)\n            x1 = min(x1, x)\n            y1 = min(y1, y)\n            x2 = max(x2, a)\n            y2 = max(y2, b)\n\n            corners.add((x, y))\n            corners.add((x, b))\n            corners.add((a, y))\n            corners.add((a, b))\n\n        if len(corners) != len(set([(x1, y1), (x1, y2), (x2, y1), (x2, y2)] + list(corners))) - 4 + 4:\n            return False\n\n        if (x2 - x1) * (y2 - y1) != area:\n            return False\n\n        count = {}\n        for rect in rectangles:\n            x, y, a, b = rect\n            count[(x, y)] = count.get((x, y), 0) + 1\n            count[(x, b)] = count.get((x, b), 0) + 1\n            count[(a, y)] = count.get((a, y), 0) + 1\n            count[(a, b)] = count.get((a, b), 0) + 1\n\n        for corner, c in count.items():\n            if c % 2 != 0 and corner not in [(x1, y1), (x1, y2), (x2, y1), (x2, y2)]:\n                return False\n\n        return True",
+                "solving_duration_seconds": 22.7,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "354. Russian Doll Envelopes",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:54:52",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxEnvelopes(self, envelopes):\n        \"\"\"\n        :type envelopes: List[List[int]]\n        :rtype: int\n        \"\"\"\n        envelopes.sort(key=lambda x: (x[0], -x[1]))\n        heights = [envelope[1] for envelope in envelopes]\n        \n        def lis(nums):\n            tails = []\n            for num in nums:\n                if not tails or num > tails[-1]:\n                    tails.append(num)\n                else:\n                    l, r = 0, len(tails) - 1\n                    while l <= r:\n                        mid = (l + r) // 2\n                        if tails[mid] < num:\n                            l = mid + 1\n                        else:\n                            r = mid - 1\n                    tails[l] = num\n            return len(tails)\n        \n        return lis(heights)",
+                "solving_duration_seconds": 20.42,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "480. Sliding Window Median",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:55:26",
+            "details": {
+                "final_code": "import heapq\n\nclass Solution(object):\n    def medianSlidingWindow(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: List[float]\n        \"\"\"\n        if not nums or k <= 0:\n            return []\n\n        result = []\n        window = []\n\n        for i in range(len(nums)):\n            window.append(nums[i])\n\n            if len(window) > k:\n                window.pop(0)\n\n            if len(window) == k:\n                sorted_window = sorted(window)\n                if k % 2 == 0:\n                    median = (sorted_window[k // 2 - 1] + sorted_window[k // 2]) / 2.0\n                else:\n                    median = float(sorted_window[k // 2])\n                result.append(median)\n\n        return result",
+                "solving_duration_seconds": 20.45,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "483. Smallest Good Base",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:56:24",
+            "details": {
+                "error": "Timeout waiting for test results",
+                "last_code_attempt": "class Solution(object):\n    def smallestGoodBase(self, n):\n        \"\"\"\n        :type n: str\n        :rtype: str\n        \"\"\"\n        n = int(n)\n        m = int((n - 1)**(1.0 / (int((n - 1)**0.5) - 1))) + 1 if n > 3 else 2\n        for l in range(int((n - 1)**0.5) + 1, 1, -1):\n            k = int(n**(1.0 / (l - 1)))\n            if k <= 1:\n                continue\n            sum_val = 0\n            for i in range(l):\n                sum_val = sum_val * k + 1\n            if sum_val == n:\n                return str(k)\n        return str(n - 1)",
+                "solving_duration_seconds": 43.79,
+                "solving_duration_formatted": "0:00:43"
+            }
+        },
+        {
+            "problem_title": "65. Valid Number",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:57:01",
+            "details": {
+                "final_code": "class Solution(object):\n    def isNumber(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: bool\n        \"\"\"\n        s = s.strip()\n        n = len(s)\n        \n        if not s:\n            return False\n        \n        has_digit = False\n        has_e = False\n        has_dot = False\n        has_sign = False\n        \n        for i in range(n):\n            char = s[i]\n            \n            if char.isdigit():\n                has_digit = True\n            elif char == '.':\n                if has_e or has_dot:\n                    return False\n                has_dot = True\n            elif char == 'e' or char == 'E':\n                if has_e or not has_digit:\n                    return False\n                has_e = True\n                has_digit = False\n                has_sign = False\n            elif char == '+' or char == '-':\n                if has_sign or has_digit or has_dot:\n                    if s[i-1] != 'e' and s[i-1] != 'E':\n                        return False\n                has_sign = True\n            else:\n                return False\n        \n        return has_digit",
+                "solving_duration_seconds": 21.8,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "587. Erect the Fence",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:57:36",
+            "details": {
+                "final_code": "class Solution(object):\n    def outerTrees(self, trees):\n        \"\"\"\n        :type trees: List[List[int]]\n        :rtype: List[List[int]]\n        \"\"\"\n        def cross_product(o, a, b):\n            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])\n\n        trees.sort()\n        n = len(trees)\n        if n <= 2:\n            return trees\n\n        upper = []\n        for p in trees:\n            while len(upper) >= 2 and cross_product(upper[-2], upper[-1], p) < 0:\n                upper.pop()\n            upper.append(p)\n\n        lower = []\n        for p in reversed(trees):\n            while len(lower) >= 2 and cross_product(lower[-2], lower[-1], p) < 0:\n                lower.pop()\n            lower.append(p)\n\n        hull = upper[:-1] + lower[:-1]\n        return list(set(map(tuple, hull)))",
+                "solving_duration_seconds": 20.68,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "587. Erect the Fence",
+            "status": "critical_error",
+            "attempts": 0,
+            "timestamp": "2025-04-20 09:57:52",
+            "details": {
+                "message": "Message: \nStacktrace:\n0   chromedriver                        0x00000001054aee10 cxxbridge1$str$ptr + 2817040\n1   chromedriver                        0x00000001054a70ac cxxbridge1$str$ptr + 2784940\n2   chromedriver                        0x0000000104fee8d8 cxxbridge1$string$len + 93028\n3   chromedriver                        0x00000001050356a0 cxxbridge1$string$len + 383276\n4   chromedriver                        0x00000001050767b8 cxxbridge1$string$len + 649796\n5   chromedriver                        0x0000000105029a80 cxxbridge1$string$len + 335116\n6   chromedriver                        0x0000000105473c98 cxxbridge1$str$ptr + 2575000\n7   chromedriver                        0x0000000105476f64 cxxbridge1$str$ptr + 2588004\n8   chromedriver                        0x0000000105453a20 cxxbridge1$str$ptr + 2443296\n9   chromedriver                        0x00000001054777e0 cxxbridge1$str$ptr + 2590176\n10  chromedriver                        0x0000000105444b14 cxxbridge1$str$ptr + 2382100\n11  chromedriver                        0x00000001054979c4 cxxbridge1$str$ptr + 2721732\n12  chromedriver                        0x0000000105497b50 cxxbridge1$str$ptr + 2722128\n13  chromedriver                        0x00000001054a6cf8 cxxbridge1$str$ptr + 2783992\n14  libsystem_pthread.dylib             0x0000000185b642e4 _pthread_start + 136\n15  libsystem_pthread.dylib             0x0000000185b5f0fc thread_start + 8\n"
+            }
+        },
+        {
+            "problem_title": "685. Redundant Connection II",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:58:28",
+            "details": {
+                "final_code": "class Solution(object):\n    def findRedundantDirectedConnection(self, edges):\n        \"\"\"\n        :type edges: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        n = len(edges)\n        parent = [0] * (n + 1)\n        in_degree = [0] * (n + 1)\n\n        for u, v in edges:\n            in_degree[v] += 1\n\n        first_edge = None\n        second_edge = None\n        for i in range(n - 1, -1, -1):\n            u, v = edges[i]\n            if in_degree[v] > 1:\n                if first_edge is None:\n                    first_edge = [u, v]\n                else:\n                    second_edge = [u, v]\n                edges.pop(i)\n                break\n\n        def find(x):\n            if parent[x] != x:\n                parent[x] = find(parent[x])\n            return parent[x]\n\n        def union(x, y):\n            root_x = find(x)\n            root_y = find(y)\n            if root_x != root_y:\n                parent[root_x] = root_y\n                return True\n            return False\n\n        parent = list(range(n + 1))\n        cycle_edge = None\n        for u, v in edges:\n            if not union(u, v):\n                cycle_edge = [u, v]\n                break\n\n        if first_edge is None and second_edge is None:\n            return cycle_edge\n        elif cycle_edge is None:\n            return first_edge\n        else:\n            return second_edge",
+                "solving_duration_seconds": 21.33,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "493. Reverse Pairs",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:59:04",
+            "details": {
+                "final_code": "class Solution(object):\n    def reversePairs(self, nums):\n        \"\"\"\n        :type nums: List[int]\n        :rtype: int\n        \"\"\"\n        def merge_sort(nums, start, end):\n            if start >= end:\n                return 0\n\n            mid = (start + end) // 2\n            count = merge_sort(nums, start, mid) + merge_sort(nums, mid + 1, end)\n\n            j = mid + 1\n            for i in range(start, mid + 1):\n                while j <= end and nums[i] > 2 * nums[j]:\n                    j += 1\n                count += j - (mid + 1)\n\n            nums[start:end + 1] = sorted(nums[start:end + 1])\n            return count\n\n        return merge_sort(nums, 0, len(nums) - 1)",
+                "solving_duration_seconds": 20.36,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "664. Strange Printer",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 09:59:38",
+            "details": {
+                "final_code": "class Solution(object):\n    def strangePrinter(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\"\n        n = len(s)\n        s = [s[i] for i in range(n) if i == 0 or s[i] != s[i-1]]\n        n = len(s)\n        \n        dp = [[0] * n for _ in range(n)]\n        \n        for i in range(n):\n            dp[i][i] = 1\n        \n        for length in range(2, n + 1):\n            for i in range(n - length + 1):\n                j = i + length - 1\n                dp[i][j] = dp[i][j-1] + 1\n                for k in range(i, j):\n                    if s[k] == s[j]:\n                        dp[i][j] = min(dp[i][j], dp[i][k] + (dp[k+1][j-1] if k+1 <= j-1 else 0))\n        \n        return dp[0][n-1]",
+                "solving_duration_seconds": 20.75,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "781. Rabbits in Forest",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:00:13",
+            "details": {
+                "final_code": "class Solution(object):\n    def numRabbits(self, answers):\n        \"\"\"\n        :type answers: List[int]\n        :rtype: int\n        \"\"\"\n        count = {}\n        for x in answers:\n            count[x] = count.get(x, 0) + 1\n        \n        res = 0\n        for k, v in count.items():\n            group_size = k + 1\n            num_groups = (v + group_size - 1) // group_size\n            res += num_groups * group_size\n        \n        return res",
+                "solving_duration_seconds": 20.17,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "679. 24 Game",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:00:48",
+            "details": {
+                "final_code": "class Solution(object):\n    def judgePoint24(self, cards):\n        \"\"\"\n        :type cards: List[int]\n        :rtype: bool\n        \"\"\"\n        def solve(nums):\n            if len(nums) == 1:\n                return abs(nums[0] - 24) < 1e-6\n            \n            for i in range(len(nums)):\n                for j in range(i + 1, len(nums)):\n                    p, q = nums[i], nums[j]\n                    remaining = [nums[k] for k in range(len(nums)) if k != i and k != j]\n                    \n                    if solve(remaining + [p + q]):\n                        return True\n                    if solve(remaining + [p - q]):\n                        return True\n                    if solve(remaining + [q - p]):\n                        return True\n                    if solve(remaining + [p * q]):\n                        return True\n                    if q != 0 and solve(remaining + [p / float(q)]):\n                        return True\n                    if p != 0 and solve(remaining + [q / float(p)]):\n                        return True\n            return False\n\n        return solve(cards)",
+                "solving_duration_seconds": 20.73,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "600. Non-negative Integers without Consecutive Ones",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:01:24",
+            "details": {
+                "final_code": "class Solution(object):\n    def findIntegers(self, n):\n        \"\"\"\n        :type n: int\n        :rtype: int\n        \"\"\"\n        binary = bin(n)[2:]\n        length = len(binary)\n        \n        fib = [1, 2]\n        for i in range(2, length + 1):\n            fib.append(fib[i-1] + fib[i-2])\n        \n        ans = 0\n        for i in range(length):\n            if binary[i] == '1':\n                ans += fib[length - 1 - i]\n                if i > 0 and binary[i-1] == '1':\n                    return ans\n        \n        return ans + 1",
+                "solving_duration_seconds": 21.42,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "675. Cut Off Trees for Golf Event",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:02:01",
+            "details": {
+                "final_code": "class Solution(object):\n    def cutOffTree(self, forest):\n        \"\"\"\n        :type forest: List[List[int]]\n        :rtype: int\n        \"\"\"\n        trees = []\n        for r in range(len(forest)):\n            for c in range(len(forest[0])):\n                if forest[r][c] > 1:\n                    trees.append((forest[r][c], r, c))\n        \n        trees.sort()\n        \n        sr, sc = 0, 0\n        total_steps = 0\n        \n        for height, tr, tc in trees:\n            steps = self.bfs(forest, sr, sc, tr, tc)\n            if steps == -1:\n                return -1\n            total_steps += steps\n            sr, sc = tr, tc\n        \n        return total_steps\n    \n    def bfs(self, forest, sr, sc, tr, tc):\n        queue = [(sr, sc, 0)]\n        visited = set()\n        visited.add((sr, sc))\n        \n        rows = len(forest)\n        cols = len(forest[0])\n        \n        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n        \n        while queue:\n            r, c, steps = queue.pop(0)\n            \n            if r == tr and c == tc:\n                return steps\n            \n            for dr, dc in directions:\n                nr, nc = r + dr, c + dc\n                \n                if 0 <= nr < rows and 0 <= nc < cols and forest[nr][nc] != 0 and (nr, nc) not in visited:\n                    queue.append((nr, nc, steps + 1))\n                    visited.add((nr, nc))\n        \n        return -1",
+                "solving_duration_seconds": 22.44,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "710. Random Pick with Blacklist",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:02:35",
+            "details": {
+                "final_code": "import random\n\nclass Solution(object):\n    def __init__(self, n, blacklist):\n        \"\"\"\n        :type n: int\n        :type blacklist: List[int]\n        \"\"\"\n        self.n = n\n        self.blacklist = set(blacklist)\n        self.white_len = n - len(blacklist)\n        self.mapping = {}\n\n        for b in blacklist:\n            if b < self.white_len:\n                self.mapping[b] = -1\n\n        j = n - 1\n        for b in blacklist:\n            if b < self.white_len:\n                while j in self.blacklist:\n                    j -= 1\n                self.mapping[b] = j\n                j -= 1\n\n    def pick(self):\n        \"\"\"\n        :rtype: int\n        \"\"\"\n        rand_idx = random.randrange(self.white_len)\n        if rand_idx in self.mapping:\n            return self.mapping[rand_idx]\n        else:\n            return rand_idx",
+                "solving_duration_seconds": 19.63,
+                "solving_duration_formatted": "0:00:19"
+            }
+        },
+        {
+            "problem_title": "689. Maximum Sum of 3 Non-Overlapping Subarrays",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:03:10",
+            "details": {
+                "final_code": "class Solution(object):\n    def maxSumOfThreeSubarrays(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: List[int]\n        \"\"\"\n        n = len(nums)\n        sums = [0] * (n - k + 1)\n        curr_sum = sum(nums[:k])\n        sums[0] = curr_sum\n        for i in range(k, n):\n            curr_sum = curr_sum - nums[i - k] + nums[i]\n            sums[i - k + 1] = curr_sum\n\n        left = [0] * (n - k + 1)\n        best = 0\n        for i in range(n - k + 1):\n            if sums[i] > sums[best]:\n                best = i\n            left[i] = best\n\n        right = [0] * (n - k + 1)\n        best = n - k\n        for i in range(n - k, -1, -1):\n            if sums[i] >= sums[best]:\n                best = i\n            right[i] = best\n\n        ans = None\n        max_sum = -1\n\n        for j in range(k, n - 2 * k + 1):\n            l = left[j - k]\n            r = right[j + k]\n            curr_sum = sums[l] + sums[j] + sums[r]\n            if curr_sum > max_sum:\n                max_sum = curr_sum\n                ans = [l, j, r]\n\n        return ans",
+                "solving_duration_seconds": 21.13,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "76. Minimum Window Substring",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:03:47",
+            "details": {
+                "final_code": "class Solution(object):\n    def minWindow(self, s, t):\n        \"\"\"\n        :type s: str\n        :type t: str\n        :rtype: str\n        \"\"\"\n        if not s or not t:\n            return \"\"\n\n        t_freq = {}\n        for char in t:\n            t_freq[char] = t_freq.get(char, 0) + 1\n\n        required = len(t_freq)\n        formed = 0\n        window_freq = {}\n        left = 0\n        right = 0\n        min_len = float('inf')\n        start = 0\n\n        while right < len(s):\n            char = s[right]\n            window_freq[char] = window_freq.get(char, 0) + 1\n\n            if char in t_freq and window_freq[char] == t_freq[char]:\n                formed += 1\n\n            while left <= right and formed == required:\n                char = s[left]\n\n                if right - left + 1 < min_len:\n                    min_len = right - left + 1\n                    start = left\n\n                window_freq[char] -= 1\n                if char in t_freq and window_freq[char] < t_freq[char]:\n                    formed -= 1\n\n                left += 1\n            right += 1\n\n        if min_len == float('inf'):\n            return \"\"\n        else:\n            return s[start:start + min_len]",
+                "solving_duration_seconds": 22.2,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "715. Range Module",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:04:20",
+            "details": {
+                "final_code": "class RangeModule(object):\n    def __init__(self):\n        self.ranges = []\n\n    def addRange(self, left, right):\n        new_ranges = []\n        i = 0\n        while i < len(self.ranges) and self.ranges[i][1] < left:\n            new_ranges.append(self.ranges[i])\n            i += 1\n\n        new_ranges.append([left, right])\n\n        while i < len(self.ranges):\n            if self.ranges[i][0] <= right:\n                new_ranges[-1][0] = min(new_ranges[-1][0], self.ranges[i][0])\n                new_ranges[-1][1] = max(new_ranges[-1][1], self.ranges[i][1])\n                i += 1\n            else:\n                new_ranges.append(self.ranges[i])\n                i += 1\n\n        self.ranges = []\n        for r in new_ranges:\n            if not self.ranges or r[0] > self.ranges[-1][1]:\n                self.ranges.append(r)\n            else:\n                self.ranges[-1][1] = max(self.ranges[-1][1], r[1])\n\n    def queryRange(self, left, right):\n        i = 0\n        while i < len(self.ranges) and self.ranges[i][1] < left:\n            i += 1\n\n        if i == len(self.ranges):\n            return False\n\n        if self.ranges[i][0] <= left and self.ranges[i][1] >= right:\n            return True\n        else:\n            return False\n\n    def removeRange(self, left, right):\n        new_ranges = []\n        for r in self.ranges:\n            if r[1] <= left or r[0] >= right:\n                new_ranges.append(r)\n            else:\n                if r[0] < left:\n                    new_ranges.append([r[0], left])\n                if r[1] > right:\n                    new_ranges.append([right, r[1]])\n        self.ranges = new_ranges",
+                "solving_duration_seconds": 19.65,
+                "solving_duration_formatted": "0:00:19"
+            }
+        },
+        {
+            "problem_title": "732. My Calendar III",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:04:54",
+            "details": {
+                "final_code": "class MyCalendarThree(object):\n    def __init__(self):\n        self.timeline = {}\n\n    def book(self, startTime, endTime):\n        \"\"\"\n        :type startTime: int\n        :type endTime: int\n        :rtype: int\n        \"\"\"\n        self.timeline[startTime] = self.timeline.get(startTime, 0) + 1\n        self.timeline[endTime] = self.timeline.get(endTime, 0) - 1\n\n        sorted_timeline = sorted(self.timeline.items())\n        \n        current_bookings = 0\n        max_bookings = 0\n        \n        for _, change in sorted_timeline:\n            current_bookings += change\n            max_bookings = max(max_bookings, current_bookings)\n            \n        return max_bookings",
+                "solving_duration_seconds": 19.15,
+                "solving_duration_formatted": "0:00:19"
+            }
+        },
+        {
+            "problem_title": "327. Count of Range Sum",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:05:25",
+            "details": {
+                "error": "Wrong Answer",
+                "failed_cases": [
+                    {
+                        "Input": "[-2,5,-1]",
+                        "Output": "5",
+                        "Expected": "3"
+                    },
+                    {
+                        "Input": "[0]",
+                        "Output": "1",
+                        "Expected": "1"
+                    }
+                ],
+                "last_code_attempt": "class Solution(object):\n    def countRangeSum(self, nums, lower, upper):\n        \"\"\"\n        :type nums: List[int]\n        :type lower: int\n        :type upper: int\n        :rtype: int\n        \"\"\"\n        n = len(nums)\n        prefix_sums = [0] * (n + 1)\n        for i in range(n):\n            prefix_sums[i + 1] = prefix_sums[i] + nums[i]\n\n        def merge_sort(left, right):\n            if left >= right:\n                return 0\n\n            mid = (left + right) // 2\n            count = merge_sort(left, mid) + merge_sort(mid + 1, right)\n\n            i = left\n            j = mid + 1\n            k = mid + 1\n            l = left\n            cache = []\n\n            while i <= mid:\n                while j <= right and prefix_sums[j] - prefix_sums[i] < lower:\n                    j += 1\n                while k <= right and prefix_sums[k] - prefix_sums[i] <= upper:\n                    k += 1\n                count += k - j\n\n                while l <= right and prefix_sums[l] < prefix_sums[i]:\n                    cache.append(prefix_sums[l])\n                    l += 1\n                cache.append(prefix_sums[i])\n                i += 1\n\n            prefix_sums[left:l] = cache + prefix_sums[left:l]\n            prefix_sums[left:right+1] = sorted(prefix_sums[left:right+1])\n            return count\n\n        return merge_sort(0, n)",
+                "solving_duration_seconds": 16.28,
+                "solving_duration_formatted": "0:00:16"
+            }
+        },
+        {
+            "problem_title": "352. Data Stream as Disjoint Intervals",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:05:53",
+            "details": {
+                "error": "SyntaxError: invalid syntax\n       ^\n    else:\nLine 22  (Solution.py)",
+                "last_code_attempt": "class SummaryRanges(object):\n    def __init__(self):\n        self.intervals = []\n\n    def addNum(self, value):\n        \"\"\"\n        :type value: int\n        :rtype: None\n        \"\"\"\n        new_interval = [value, value]\n        i = 0\n        while i < len(self.intervals):\n            if new_interval[1] + 1 < self.intervals[i][0]:\n                i += 1\n            elif new_interval[0] > self.intervals[i][1] + 1:\n                i += 1\n            else:\n                new_interval[0] = min(new_interval[0], self.intervals[i][0])\n                new_interval[1] = max(new_interval[1], self.intervals[i][1])\n                self.intervals.pop(i)\n            \n            else:\n                break\n        self.intervals.insert(i, new_interval)\n\n        i = 0\n        while i < len(self.intervals) - 1:\n            if self.intervals[i][1] + 1 == self.intervals[i+1][0]:\n                self.intervals[i][1] = self.intervals[i+1][1]\n                self.intervals.pop(i+1)\n            else:\n                i += 1\n\n    def getIntervals(self):\n        \"\"\"\n        :rtype: List[List[int]]\n        \"\"\"\n        return self.intervals",
+                "solving_duration_seconds": 13.76,
+                "solving_duration_formatted": "0:00:13"
+            }
+        },
+        {
+            "problem_title": "719. Find K-th Smallest Pair Distance",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:06:29",
+            "details": {
+                "final_code": "class Solution(object):\n    def smallestDistancePair(self, nums, k):\n        \"\"\"\n        :type nums: List[int]\n        :type k: int\n        :rtype: int\n        \"\"\"\n        nums.sort()\n        low = 0\n        high = nums[-1] - nums[0]\n\n        while low < high:\n            mid = (low + high) // 2\n            count = 0\n            j = 0\n            for i in range(len(nums)):\n                while j < len(nums) and nums[j] - nums[i] <= mid:\n                    j += 1\n                count += j - i - 1\n\n            if count < k:\n                low = mid + 1\n            else:\n                high = mid\n\n        return low",
+                "solving_duration_seconds": 21.46,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "726. Number of Atoms",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:07:06",
+            "details": {
+                "final_code": "class Solution(object):\n    def countOfAtoms(self, formula):\n        \"\"\"\n        :type formula: str\n        :rtype: str\n        \"\"\"\n        stack = [dict()]\n        i = 0\n        N = len(formula)\n\n        while i < N:\n            if formula[i] == '(':\n                stack.append(dict())\n                i += 1\n            elif formula[i] == ')':\n                i += 1\n                num_start = i\n                while i < N and formula[i].isdigit():\n                    i += 1\n                num = int(formula[num_start:i]) if num_start < i else 1\n                top = stack.pop()\n                for k, v in top.items():\n                    stack[-1][k] = stack[-1].get(k, 0) + v * num\n            else:\n                start = i\n                i += 1\n                while i < N and formula[i].islower():\n                    i += 1\n                name = formula[start:i]\n                num_start = i\n                while i < N and formula[i].isdigit():\n                    i += 1\n                num = int(formula[num_start:i]) if num_start < i else 1\n                stack[-1][name] = stack[-1].get(name, 0) + num\n\n        result = \"\"\n        for k in sorted(stack[-1].keys()):\n            result += k\n            if stack[-1][k] > 1:\n                result += str(stack[-1][k])\n        return result",
+                "solving_duration_seconds": 22.24,
+                "solving_duration_formatted": "0:00:22"
+            }
+        },
+        {
+            "problem_title": "749. Contain Virus",
+            "status": "failed",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:07:39",
+            "details": {
+                "error": "Wrong Answer",
+                "failed_cases": [
+                    {
+                        "Input": "[[0,1,0,0,0,0,0,1],[0,1,0,0,0,0,0,1],[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0]]",
+                        "Output": "20",
+                        "Expected": "10"
+                    },
+                    {
+                        "Input": "[[1,1,1],[1,0,1],[1,1,1]]",
+                        "Output": "16",
+                        "Expected": "4"
+                    },
+                    {
+                        "Input": "[[1,1,1,0,0,0,0,0,0],[1,0,1,0,1,1,1,1,1],[1,1,1,0,0,0,0,0,0]]",
+                        "Output": "27",
+                        "Expected": "13"
+                    }
+                ],
+                "last_code_attempt": "class Solution(object):\n    def containVirus(self, isInfected):\n        \"\"\"\n        :type isInfected: List[List[int]]\n        :rtype: int\n        \"\"\"\n        m = len(isInfected)\n        n = len(isInfected[0])\n        walls = 0\n        \n        while True:\n            regions = []\n            visited = set()\n            \n            for i in range(m):\n                for j in range(n):\n                    if isInfected[i][j] == 1 and (i, j) not in visited:\n                        region = set()\n                        borders = 0\n                        affected = set()\n                        \n                        stack = [(i, j)]\n                        visited.add((i, j))\n                        region.add((i, j))\n                        \n                        while stack:\n                            x, y = stack.pop()\n                            \n                            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:\n                                nx, ny = x + dx, y + dy\n                                \n                                if 0 <= nx < m and 0 <= ny < n:\n                                    if isInfected[nx][ny] == 1 and (nx, ny) not in visited:\n                                        stack.append((nx, ny))\n                                        visited.add((nx, ny))\n                                        region.add((nx, ny))\n                                    elif isInfected[nx][ny] == 0:\n                                        affected.add((nx, ny))\n                                        borders += 1\n                                else:\n                                    borders += 1\n                        \n                        regions.append((borders, affected, region))\n            \n            if not regions:\n                break\n            \n            regions.sort(key=lambda x: len(x[1]), reverse=True)\n            \n            walls += regions[0][0]\n            \n            for x, y in regions[0][2]:\n                isInfected[x][y] = -1\n            \n            for i in range(1, len(regions)):\n                for x, y in regions[i][1]:\n                    isInfected[x][y] = 1\n            \n            new_infected = []\n            for i in range(m):\n                new_infected.append(isInfected[i][:])\n            \n            for i in range(m):\n                for j in range(n):\n                    if isInfected[i][j] == 1:\n                        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:\n                            nx, ny = i + dx, j + dy\n                            if 0 <= nx < m and 0 <= ny < n and isInfected[nx][ny] == 0:\n                                new_infected[nx][ny] = 1\n            \n            isInfected = new_infected\n        \n        return walls",
+                "solving_duration_seconds": 18.41,
+                "solving_duration_formatted": "0:00:18"
+            }
+        },
+        {
+            "problem_title": "730. Count Different Palindromic Subsequences",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:08:13",
+            "details": {
+                "final_code": "class Solution(object):\n    def countPalindromicSubsequences(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\"\n        n = len(s)\n        dp = [[0] * n for _ in range(n)]\n        MOD = 10**9 + 7\n\n        for i in range(n):\n            dp[i][i] = 1\n\n        for length in range(2, n + 1):\n            for i in range(n - length + 1):\n                j = i + length - 1\n                if s[i] == s[j]:\n                    left = i + 1\n                    right = j - 1\n                    while left <= right and s[left] != s[i]:\n                        left += 1\n                    while left <= right and s[right] != s[i]:\n                        right -= 1\n\n                    if left > right:\n                        dp[i][j] = (2 * dp[i+1][j-1] + 2) % MOD\n                    elif left == right:\n                        dp[i][j] = (2 * dp[i+1][j-1] + 1) % MOD\n                    else:\n                        dp[i][j] = (2 * dp[i+1][j-1] - dp[left+1][right-1]) % MOD\n                else:\n                    dp[i][j] = (dp[i][j-1] + dp[i+1][j] - dp[i+1][j-1]) % MOD\n                \n                dp[i][j] = (dp[i][j] + MOD) % MOD\n\n        return dp[0][n-1]",
+                "solving_duration_seconds": 20.09,
+                "solving_duration_formatted": "0:00:20"
+            }
+        },
+        {
+            "problem_title": "741. Cherry Pickup",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:08:48",
+            "details": {
+                "final_code": "class Solution(object):\n    def cherryPickup(self, grid):\n        \"\"\"\n        :type grid: List[List[int]]\n        :rtype: int\n        \"\"\"\n        n = len(grid)\n        dp = {}\n\n        def solve(r1, c1, r2):\n            c2 = r1 + c1 - r2\n            if (r1, c1, r2) in dp:\n                return dp[(r1, c1, r2)]\n\n            if r1 == n or c1 == n or r2 == n or c2 == n or \\\n               grid[r1][c1] == -1 or grid[r2][c2] == -1:\n                return float('-inf')\n\n            if r1 == n - 1 and c1 == n - 1:\n                return grid[r1][c1]\n\n            if r2 == n - 1 and c2 == n - 1:\n                return grid[r2][c2]\n\n            ans = max(solve(r1 + 1, c1, r2 + 1),\n                      solve(r1 + 1, c1, r2),\n                      solve(r1, c1 + 1, r2 + 1),\n                      solve(r1, c1 + 1, r2))\n\n            if ans == float('-inf'):\n                return float('-inf')\n\n            if r1 == r2 and c1 == c2:\n                ans += grid[r1][c1]\n            else:\n                ans += grid[r1][c1] + grid[r2][c2]\n\n            dp[(r1, c1, r2)] = ans\n            return ans\n\n        result = solve(0, 0, 0)\n        return max(0, result)",
+                "solving_duration_seconds": 21.28,
+                "solving_duration_formatted": "0:00:21"
+            }
+        },
+        {
+            "problem_title": "745. Prefix and Suffix Search",
+            "status": "solved",
+            "attempts": 1,
+            "timestamp": "2025-04-20 10:09:22",
+            "details": {
+                "final_code": "class WordFilter(object):\n    def __init__(self, words):\n        \"\"\"\n        :type words: List[str]\n        \"\"\"\n        self.word_dict = {}\n        for i, word in enumerate(words):\n            for j in range(len(word) + 1):\n                for k in range(len(word) + 1):\n                    self.word_dict[(word[:j], word[len(word) - k:])] = i\n\n    def f(self, pref, suff):\n        \"\"\"\n        :type pref: str\n        :type suff: str\n        :rtype: int\n        \"\"\"\n        if (pref, suff) in self.word_dict:\n            return self.word_dict[(pref, suff)]\n        else:\n            return -1",
+                "solving_duration_seconds": 19.3,
+                "solving_duration_formatted": "0:00:19"
+            }
+        }
+    ],
+    "statistics": {
+        "total_attempted": 100,
+        "total_solved": 86,
+        "accuracy": 86.0
+    }
+}
