@@ -17,8 +17,6 @@ class WorkflowState:
     debug_analysis: Optional[str] = None # Output from Debugger Agent
     optimization_analysis: Optional[str] = None # Output from Optimizer Agent
     iteration: int = 0
-    max_iterations: int = 30 # Default value is 5 HERE
+    max_iterations: int = 5 # Default maximum number of iterations
     status: str = "Initialized" # e.g., Planning, Coding, Testing, Debugging, Optimizing, Submitting, Success, Failed
     error_message: Optional[str] = None # General error message if workflow fails
-
-    # You can add more fields as needed, e.g., complexity analysis, benchmark results etc. 

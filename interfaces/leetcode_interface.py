@@ -3,10 +3,9 @@ import re
 import time
 import logging
 import undetected_chromedriver as uc
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import (
@@ -45,8 +44,8 @@ class LeetCodeInterface:
         self.username = os.getenv("LEETCODE_USERNAME")
         self.password = os.getenv("LEETCODE_PASSWORD")
         if not self.username or not self.password:
-            logger.warning("LeetCode username or password not found in .env. Manual login might be required.")
-            # raise ValueError("LEETCODE_USERNAME and LEETCODE_PASSWORD must be set in .env")
+            logger.error("LeetCode username or password not found in .env.")
+            raise ValueError("LEETCODE_USERNAME and LEETCODE_PASSWORD must be set in .env")
 
         options = uc.ChromeOptions()
         if headless:
@@ -129,9 +128,7 @@ class LeetCodeInterface:
 
     def login(self):
         """Logs into LeetCode using GitHub credentials from .env."""
-        if not self.username or not self.password:
-             logger.error("Cannot attempt login: LeetCode credentials not provided.")
-             return False
+        # Credentials are already checked in __init__, so we can proceed directly
 
         logger.info("Attempting LeetCode login via GitHub...")
         if not self.navigate_to(LEETCODE_LOGIN_URL):
@@ -294,8 +291,8 @@ class LeetCodeInterface:
 
         # --- Get Starting Code ---
         try:
-            # Ensure Python is selected (implement if necessary, similar to Solver.py's ensure_python_language)
-            # self.ensure_python_language() # Add this call if language selection is needed
+            # Ensure Python is selected for consistent code extraction
+            self.ensure_python_language()
 
             # Wait for the Monaco editor lines to be present
             code_editor_lines = WebDriverWait(self.driver, DEFAULT_WAIT_TIME).until(
@@ -332,15 +329,21 @@ class LeetCodeInterface:
         logger.info("Inputting code into editor...")
         try:
             # First ensure Python is selected
-            if not self.ensure_python_language():
-                logger.error("Failed to ensure Python language before code input.")
+            # Try up to 3 times to set Python language
+            for attempt in range(3):
+                if self.ensure_python_language():
+                    break
+                logger.warning(f"Failed to set Python language (attempt {attempt+1}/3). Retrying...")
+                time.sleep(1)
+            else:  # This runs if the for loop completes without a break
+                logger.error("Failed to ensure Python language after multiple attempts.")
                 return False
 
             # Rest of the existing input_code_to_editor implementation...
             self._find_element(By.CSS_SELECTOR, '.monaco-editor textarea')
-            
+
             escaped_code = code.replace('\\', '\\\\').replace('`', '\\`').replace('$', '\\$')
-            
+
             js_set_editor_value = f"""
             try {{
                 var editor = monaco.editor.getEditors()[0];
@@ -630,7 +633,8 @@ class LeetCodeInterface:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *args):
+        """Close the WebDriver when exiting the context manager."""
         self.close()
 
     def ensure_python_language(self) -> bool:
@@ -639,7 +643,7 @@ class LeetCodeInterface:
         try:
             # Wait for and find the language selector button
             lang_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text-sm.font-normal.group")))
-            
+
             # Check if Python is already selected
             if "python" in lang_select.text.lower():
                 logger.info("Python is already selected.")
@@ -654,7 +658,7 @@ class LeetCodeInterface:
                 (By.XPATH, "//div[contains(@class, 'text-text-primary') and text()='Python3']")
             ))
             python_option.click()  # Select Python
-            
+
             # Verify the selection took effect
             time.sleep(1)  # Wait for selection to apply
             updated_lang = self.wait.until(EC.element_to_be_clickable(
@@ -758,4 +762,4 @@ class Solution:
         else:
             print("\nLogin failed.")
 
-    print("\nInterface closed.") 
+    print("\nInterface closed.")

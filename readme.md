@@ -63,7 +63,7 @@ Core components:
     ```
 
 4.  **Set up environment variables:**
-    *   Copy the `.env.example` file (if provided) or create a new file named `.env` in the project root.
+    *   Copy the `.env.example` file or create a new file named `.env` in the project root.
     *   Add your credentials and API key:
         ```dotenv:.env
         # LeetCode Credentials
@@ -74,8 +74,8 @@ Core components:
         GEMINI_API_KEY="your_gemini_api_key"
 
         # Optional: Gemini Configuration
-        GEMINI_MODEL="gemini-1.5-pro-latest" # Or another suitable model like gemini-1.5-flash-latest
-        GEMINI_RPM=60 # Rate limit (requests per minute for the API)
+        GEMINI_MODEL="gemini-2.0-flash" # Or another suitable model like gemini-1.5-flash-latest
+        GEMINI_RPM=20 # Rate limit (requests per minute for the API)
 
         # Optional: Orchestrator Configuration
         MAX_ITERATIONS=5 # Max attempts per problem
@@ -84,13 +84,27 @@ Core components:
 
 ## Usage
 
-Run the main script from the project root directory, providing the URL of the LeetCode problem you want to solve:
+Run the main script from the project root directory:
 
 ```bash
-python main.py "https://leetcode.com/problems/two-sum/"
+python start.py
 ```
 
-Replace the URL with the desired problem URL. The script will log the process, including agent actions, LLM interactions (prompts/responses can be enabled via logging level), test results, and submission status.
+By default, the script will attempt to solve problems from LeetCode's problem set, focusing on unsolved problems. You can configure the problem selection by modifying the following variables in `start.py`:
+
+- `LEETCODE_PROBLEMSET_URL`: URL for the problem set to work on
+- `MAX_RETRIES`: Maximum number of attempts per problem (default: 1)
+
+The script maintains a results file tracking:
+- Total problems attempted
+- Total problems solved
+- Overall accuracy rate
+
+The system will log:
+- Agent actions and decisions
+- Code generation attempts
+- Submission results
+- Overall statistics
 
 ## Contributing
 

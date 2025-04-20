@@ -1,15 +1,12 @@
 import logging
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 
 from agents.base_agent import BaseAgent
 from agents.problem_analyzer import ProblemAnalyzerAgent
 from agents.coding_agent import CodingAgent
-# from agents.testing_agent import TestingAgent # No longer needed
 from agents.debugging_agent import DebuggingAgent
-# from agents.optimization_agent import OptimizationAgent # No longer needed
-# from agents.benchmark_agent import BenchmarkAgent
 
 from interfaces.leetcode_interface import LeetCodeInterface
 from core.state import WorkflowState
@@ -20,6 +17,12 @@ load_dotenv()
 class Orchestrator:
     """
     Manages the workflow of agents to solve a LeetCode problem by submitting directly.
+
+    Note: This implementation differs from the original plan.md architecture:
+    1. TestingAgent has been removed - solutions are submitted directly to LeetCode without local testing
+    2. OptimizationAgent has been removed - no optimization phase is performed
+
+    This simplified workflow focuses on: Plan -> Code -> Submit -> Debug (if needed) -> Code...
     """
     def __init__(self,  max_iterations: Optional[int] = None):
         """Initialize the orchestrator with a list of agents."""
@@ -31,12 +34,13 @@ class Orchestrator:
         )
         logger.info(f"Orchestrator initialized with max_iterations: {self.max_iterations}")
 
-        # Agent Initialization - Removed Tester and Optimizer
+        # Agent Initialization
+        # Only using a subset of agents from plan.md: Analyzer, Coder, and Debugger
         self.agents: Dict[str, BaseAgent] = {
             "analyzer": ProblemAnalyzerAgent(),
             "coder": CodingAgent(),
             "debugger": DebuggingAgent(),
-            # "benchmarker": BenchmarkAgent(), # Keep commented out unless needed
+            # Additional agents could be added here in future versions
         }
         logger.info("Orchestrator initialized with agents: %s", list(self.agents.keys()))
 
@@ -104,10 +108,11 @@ class Orchestrator:
                             logger.error(f"Coding agent failed critically: {state.error_message}")
                             break
                         elif state.current_code == previous_code and iteration_count > 1 and not state.debug_analysis:
-                            # If code hasn't changed and it wasn't based on new debug info, it might be stuck
-                            logger.warning("Coding agent did not produce new code or failed to extract. Potential loop detected.")
-                            # Optional: Add logic to fail here if stuck for too long
-                            # state.status = "Failed"; state.error_message = "Coding agent stuck." break
+                            # If code hasn't changed and it wasn't based on new debug info, it's stuck in a loop
+                            logger.error("Coding agent did not produce new code. Loop detected.")
+                            state.status = "Failed"
+                            state.error_message = "Coding agent stuck in a loop - unable to generate new code."
+                            break
 
                         logger.info("Coding agent finished. Moving to Submission.")
                         state.status = "Submitting"
@@ -143,9 +148,10 @@ class Orchestrator:
 
                         # Ensure language is Python before submitting
                         if not leetcode_interface.ensure_python_language():
-                             logger.warning("Failed to explicitly set language to Python before submission. Attempting to proceed.")
-                             # Depending on interface robustness, might want to fail here:
-                             # state.status = "Failed"; state.error_message = "Failed to set Python language."; break
+                             logger.error("Failed to explicitly set language to Python before submission.")
+                             state.status = "Failed"
+                             state.error_message = "Failed to set Python language for submission."
+                             break
 
                         if leetcode_interface.input_code_to_editor(state.current_code):
                             if leetcode_interface.submit_solution():
@@ -198,17 +204,22 @@ class Orchestrator:
         logger.info(f"Workflow finished for {problem_url}. Final Status: {state.status}")
         return state
 
-    # run_benchmark method remains unchanged, but likely unused without specific invocation
-    def run_benchmark(self, benchmark_name: str, code: str) -> Dict[str, Any]:
+    # Placeholder for future benchmark functionality
+    def run_benchmark(self, benchmark_name: str) -> Dict[str, Any]:
+         """Placeholder for future benchmark functionality.
+
+         This method would run the solution against standard coding benchmarks
+         as described in plan.md, but is not implemented in the current version.
+
+         Args:
+             benchmark_name: The name of the benchmark to run
+
+         Returns:
+             A dictionary with the benchmark status
+         """
          logger.info(f"Running benchmark '{benchmark_name}'...")
-         # if "benchmarker" in self.agents:
-         #     logger.warning("Benchmark Agent execution not fully implemented yet.")
-         #     return {"status": "Not Implemented", "message": "Benchmark agent logic pending."}
-         # else:
-         #     logger.error("Benchmark Agent not initialized.")
-         #     return {"status": "Error", "message": "Benchmark Agent not available."}
          logger.warning("Benchmarking not currently supported in this workflow.")
-         return {"status": "Not Supported"}
+         return {"status": "Not Supported", "message": "BenchmarkAgent not implemented in this version."}
 
 
 # Example Usage (Optional - update if needed)
